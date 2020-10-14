@@ -16,10 +16,12 @@ import org.springframework.test.web.servlet.get
 class ProjectControllerTest(@Autowired val mockMvc: MockMvc, @Autowired val projectRepository: ProjectRepository) {
     @Test
     fun `A user can retrieve all projects`() {
-        val projects = projectRepository.saveAll(listOf(
-            Project(name = "example-project-a"),
-            Project(name = "example-project-b")
-        ))
+        val projects = projectRepository.saveAll(
+            listOf(
+                Project(name = "example-project-a"),
+                Project(name = "example-project-b")
+            )
+        )
 
         mockMvc.get("/projects") {
             accept = MediaType.APPLICATION_JSON
