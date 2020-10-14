@@ -35,4 +35,6 @@ jobs:
       env:
         MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
     - name: Run detekt with Gradle
-      run: ./gradlew detekt --info
+      run: ./gradlew detekt
+    - name: Run ktlint with Gradle
+      run: ./gradlew ktlintCheck
