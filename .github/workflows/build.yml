@@ -29,6 +29,10 @@ jobs:
         key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
         restore-keys: ${{ runner.os }}-gradle
     - name: Build with Gradle
-      run: ./gradlew build --info
+      run: ./gradlew build -x check --info
+    - name: Run tests with Gradle
+      run: ./gradlew test --info
       env:
         MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+    - name: Run detekt with Gradle
+      run: ./gradlew detekt --info
