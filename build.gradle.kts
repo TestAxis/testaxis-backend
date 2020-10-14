@@ -12,7 +12,7 @@ plugins {
     kotlin("jvm") version "1.4.10"
     kotlin("plugin.spring") version "1.4.10"
     kotlin("plugin.jpa") version "1.4.10"
-    id("io.gitlab.arturbosch.detekt") version "1.11.0"
+    id("io.gitlab.arturbosch.detekt") version "1.14.1"
     id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
 }
 
