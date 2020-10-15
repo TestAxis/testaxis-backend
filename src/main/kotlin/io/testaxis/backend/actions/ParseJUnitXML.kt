@@ -2,7 +2,9 @@ package io.testaxis.backend.actions
 
 import io.testaxis.backend.models.TestCase
 import io.testaxis.backend.models.TestSuite
+import org.springframework.stereotype.Component
 import org.w3c.dom.Element
+import java.io.InputStream
 import javax.xml.parsers.DocumentBuilderFactory
 
 /**
@@ -17,6 +19,7 @@ fun Element.getChildElementsByTagName(tagName: String) = getElementsByTagName(ta
  */
 fun Element.getChildElementByTagName(tagName: String) = getChildElementsByTagName(tagName).firstOrNull()
 
+@Component
 class ParseJUnitXML {
     /**
      * Parses one or more XML documents to a collection of [TestSuite]s.
@@ -24,8 +27,7 @@ class ParseJUnitXML {
      * In case multiple documents are provided, a flattened collection will be returned where all the testsuites of all
      * the documents are at the same level.
      */
-    operator fun invoke(vararg documents: String) = documents
-        .map { it.byteInputStream() }
+    operator fun invoke(documents: List<InputStream>): List<TestSuite> = documents
         .map { DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(it) }
         .map {
             it.documentElement.normalize()
@@ -56,6 +58,7 @@ class ParseJUnitXML {
     /**
      * Parses a list of <testcase> nodes into a list of [TestCase] objects.
      */
+    @Suppress("ForbiddenComment") // TODO: parse <skipped /> and maybe <error ..> ?
     private fun parseTestCases(elements: List<Element>) = elements.map {
         TestCase(
             name = it.getAttribute("name"),
