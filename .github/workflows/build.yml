@@ -8,13 +8,18 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      mysql:
-        image: mysql:8.0
+      postgres:
+        image: postgres
         env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          MYSQL_DATABASE: testaxis-test
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: textaxis-ci
         ports:
-          - 3306
+          - 5432/tcp
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
     - uses: actions/checkout@v2
@@ -33,7 +38,11 @@ jobs:
     - name: Run tests with Gradle
       run: ./gradlew test --info
       env:
-        MYSQL_PORT: ${{ job.services.mysql.ports[3306] }}
+        PG_HOST: localhost
+        PG_USER: postgres
+        PG_DATABASE: textaxis-ci
+        PG_PASSWORD: postgres
+        PG_PORT: ${{ job.services.postgres.ports['5432'] }}
     - name: Run detekt with Gradle
       run: ./gradlew detekt
     - name: Run ktlint with Gradle
