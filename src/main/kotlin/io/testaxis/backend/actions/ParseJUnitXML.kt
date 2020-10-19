@@ -1,7 +1,5 @@
 package io.testaxis.backend.actions
 
-import io.testaxis.backend.models.TestCase
-import io.testaxis.backend.models.TestSuite
 import org.springframework.stereotype.Component
 import org.w3c.dom.Element
 import java.io.InputStream
@@ -15,12 +13,33 @@ fun Element.getChildElementsByTagName(tagName: String) = getElementsByTagName(ta
 }
 
 /**
- * Finds the first child that is a [Element] and returns [null] otherwise.
+ * Finds the first child that is a [Element] and returns null otherwise.
  */
 fun Element.getChildElementByTagName(tagName: String) = getChildElementsByTagName(tagName).firstOrNull()
 
 @Component
 class ParseJUnitXML {
+
+    data class TestSuite(
+        val name: String,
+        val tests: Int,
+        val failures: Int,
+        val skipped: Int,
+        val errors: Int,
+        val time: Double,
+        val testCases: List<TestCase>,
+    )
+
+    data class TestCase(
+        val name: String,
+        val className: String,
+        val time: Double,
+        val passed: Boolean,
+        val failureMessage: String?,
+        val failureType: String?,
+        val failureContent: String?,
+    )
+
     /**
      * Parses one or more XML documents to a collection of [TestSuite]s.
      *
