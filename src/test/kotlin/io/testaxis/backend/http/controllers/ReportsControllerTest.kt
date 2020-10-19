@@ -1,5 +1,6 @@
 package io.testaxis.backend.http.controllers
 
+import io.testaxis.backend.hasValidationError
 import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -9,6 +10,8 @@ import org.springframework.http.MediaType
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.multipart
+import org.springframework.test.web.servlet.result.isEqualTo
+import org.springframework.util.MimeTypeUtils
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -30,13 +33,27 @@ class ReportsControllerTest(@Autowired val mockMvc: MockMvc) {
         """.trimIndent()
 
     @Test
-    fun `A user can upload a single XML test report`() {
+    fun `A user can upload a single XML test report of type text--xml`() {
         mockMvc.multipart("/reports") {
             file(fakeTestReport())
             param("commit", "a2b4fa")
             param("branch", "new-feature")
             param("slug", "company/project")
         }.andExpect {
+            status { isEqualTo(200) }
+            content { string(containsString("2 tests")) }
+        }
+    }
+
+    @Test
+    fun `A user can upload a single XML test report of type application--xml`() {
+        mockMvc.multipart("/reports") {
+            file(fakeTestReport(MediaType.APPLICATION_XML_VALUE))
+            param("commit", "a2b4fa")
+            param("branch", "new-feature")
+            param("slug", "company/project")
+        }.andExpect {
+            status { isEqualTo(200) }
             content { string(containsString("2 tests")) }
         }
     }
@@ -50,14 +67,76 @@ class ReportsControllerTest(@Autowired val mockMvc: MockMvc) {
             param("branch", "new-feature")
             param("slug", "company/project")
         }.andExpect {
+            status { isEqualTo(200) }
             content { string(containsString("4 tests")) }
         }
     }
 
-    private fun fakeTestReport() = MockMultipartFile(
+    @Test
+    fun `A user cannot upload an XML test report of an unsupported type`() {
+        mockMvc.multipart("/reports") {
+            file(fakeTestReport(MimeTypeUtils.IMAGE_PNG_VALUE))
+            param("commit", "a2b4fa")
+            param("branch", "new-feature")
+            param("slug", "company/project")
+        }.andExpect {
+            status { isEqualTo(422) }
+            content { hasValidationError("store.files") }
+        }
+    }
+
+    @Test
+    fun `A user cannot upload 0 reports`() {
+        mockMvc.multipart("/reports") {
+            param("commit", "a2b4fa")
+            param("branch", "new-feature")
+            param("slug", "company/project")
+        }.andExpect {
+            status { isEqualTo(422) }
+            content { hasValidationError("store.files") }
+        }
+    }
+
+    @Test
+    fun `A user cannot upload a report without a commit hash`() {
+        mockMvc.multipart("/reports") {
+            file(fakeTestReport())
+            param("branch", "new-feature")
+            param("slug", "company/project")
+        }.andExpect {
+            status { isEqualTo(422) }
+            content { hasValidationError("commit") }
+        }
+    }
+
+    @Test
+    fun `A user cannot upload a report without a branch`() {
+        mockMvc.multipart("/reports") {
+            file(fakeTestReport())
+            param("commit", "a2b4fa")
+            param("slug", "company/project")
+        }.andExpect {
+            status { isEqualTo(422) }
+            content { hasValidationError("branch") }
+        }
+    }
+
+    @Test
+    fun `A user cannot upload a report without a slug`() {
+        mockMvc.multipart("/reports") {
+            file(fakeTestReport())
+            param("commit", "a2b4fa")
+            param("branch", "new-feature")
+        }.andExpect {
+            status { isEqualTo(422) }
+            content { hasValidationError("slug") }
+        }
+    }
+
+    private fun fakeTestReport(mimeType: String = MediaType.TEXT_XML_VALUE) = MockMultipartFile(
         "files",
         "test_report.xml",
-        MediaType.TEXT_XML_VALUE,
+        mimeType,
         testReport.byteInputStream()
     )
 }
