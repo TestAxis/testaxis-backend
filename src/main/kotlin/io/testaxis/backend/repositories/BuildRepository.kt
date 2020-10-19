@@ -5,4 +5,6 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface BuildRepository : CrudRepository<Build, Long>
+interface BuildRepository : CrudRepository<Build, Long> {
+    fun findByCommit(commit: String): Build
+}

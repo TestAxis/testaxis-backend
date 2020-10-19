@@ -34,7 +34,6 @@ class ReportsController(val reportService: ReportService) {
             TestAxis -- Upload Successful
             -------------------------------------------
             Found the reported executions of ${executions.count()} tests.
-            $request
             -------------------------------------------
         """.trimIndent()
     }
