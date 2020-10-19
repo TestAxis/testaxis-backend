@@ -728,7 +728,6 @@ done <<<"$(echo -e "$files")"
 res=$(curl -X POST $curl_s $curlargs $cacert \
   --retry 5 --retry-delay 2 --connect-timeout 2 \
   -H 'Content-Type: multipart/form-data' \
-  -H 'Accept: text/plain' \
   $curlfiles \
   --write-out "\nHTTP %{http_code}" \
   -o - \

@@ -33,6 +33,9 @@ class ReportsControllerTest(@Autowired val mockMvc: MockMvc) {
     fun `A user can upload a single XML test report`() {
         mockMvc.multipart("/reports") {
             file(fakeTestReport())
+            param("commit", "a2b4fa")
+            param("branch", "new-feature")
+            param("slug", "company/project")
         }.andExpect {
             content { string(containsString("2 tests")) }
         }
@@ -43,6 +46,9 @@ class ReportsControllerTest(@Autowired val mockMvc: MockMvc) {
         mockMvc.multipart("/reports") {
             file(fakeTestReport())
             file(fakeTestReport())
+            param("commit", "a2b4fa")
+            param("branch", "new-feature")
+            param("slug", "company/project")
         }.andExpect {
             content { string(containsString("4 tests")) }
         }

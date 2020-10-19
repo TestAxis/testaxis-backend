@@ -7,21 +7,21 @@ import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
-import javax.persistence.Lob
-import javax.persistence.ManyToOne
+import javax.persistence.OneToMany
 
 @Entity
-data class TestCaseExecution(
+data class Build(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
-    @ManyToOne val build: Build,
-    val testSuiteName: String,
-    val name: String,
-    val className: String,
-    val time: Double,
-    val passed: Boolean,
-    @Lob val failureMessage: String?,
-    val failureType: String?,
-    @Lob val failureContent: String?,
+    val branch: String = "",
+    val commit: String = "",
+    val slug: String = "",
+    val tag: String? = null,
+    val pr: String? = null,
+    val service: String? = null,
+    val serviceBuild: String? = null,
+    val serviceBuildUrl: String? = null,
+    val serviceJob: String? = null,
+    @OneToMany val testCaseExecutions: List<TestCaseExecution> = emptyList(),
     @CreatedDate val createdAt: Date = Date(),
     @Suppress("ForbiddenComment") // TODO: Fix @CreatedDate and @LastModifiedDate annotations
     @LastModifiedDate val updatedAt: Date = Date(),
