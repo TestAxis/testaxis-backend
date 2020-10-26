@@ -10,11 +10,13 @@ import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
 import javax.persistence.JoinColumn
+import javax.persistence.ManyToOne
 import javax.persistence.OneToMany
 
 @Entity
 data class Build(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
+    @ManyToOne @JoinColumn(name = "project_id") val project: Project,
     val branch: String,
     val commit: String,
     val slug: String,
@@ -25,7 +27,7 @@ data class Build(
     val serviceBuildUrl: String? = null,
     val serviceJob: String? = null,
     @JsonIgnore @OneToMany(fetch = FetchType.LAZY) @JoinColumn(name = "build_id")
-    val testCaseExecutions: List<TestCaseExecution> = emptyList(),
+    val testCaseExecutions: List<TestCaseExecution>? = null,
     @CreatedDate val createdAt: Date = Date(),
     @Suppress("ForbiddenComment") // TODO: Fix @CreatedDate and @LastModifiedDate annotations
     @LastModifiedDate val updatedAt: Date = Date(),

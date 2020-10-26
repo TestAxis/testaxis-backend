@@ -4,6 +4,8 @@ import io.testaxis.backend.config.AppConfig
 import io.testaxis.backend.http.FilesHaveMaxSize
 import io.testaxis.backend.http.FilesHaveType
 import io.testaxis.backend.models.Build
+import io.testaxis.backend.models.Project
+import io.testaxis.backend.repositories.ProjectRepository
 import io.testaxis.backend.services.ReportService
 import org.springframework.util.MimeTypeUtils
 import org.springframework.validation.annotation.Validated
@@ -17,7 +19,7 @@ import javax.validation.constraints.NotEmpty
 
 @RestController
 @Validated
-class ReportsController(val reportService: ReportService) {
+class ReportsController(val reportService: ReportService, val projectRepository: ProjectRepository) {
     @PostMapping("reports")
     fun store(
         @RequestParam("files") @NotEmpty
@@ -26,7 +28,7 @@ class ReportsController(val reportService: ReportService) {
         files: Array<MultipartFile>,
         @Valid request: UploadReportRequest
     ) = reportService.parseAndPersistTestReports(
-        request.toBuild(),
+        request.toBuild(projectRepository.findBySlugOrCreate(request.slug)),
         files.map { it.inputStream }
     ).let { executions ->
         """
@@ -50,7 +52,8 @@ data class UploadReportRequest(
     @Suppress("ConstructorParameterNaming") val build_url: String?,
     val job: String?,
 ) {
-    fun toBuild() = Build(
+    fun toBuild(project: Project) = Build(
+        project = project,
         branch = branch,
         commit = commit,
         slug = slug,

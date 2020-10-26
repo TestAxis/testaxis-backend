@@ -2,7 +2,9 @@ package io.testaxis.backend.http.controllers.api
 
 import io.testaxis.backend.apiRoute
 import io.testaxis.backend.models.Build
+import io.testaxis.backend.models.Project
 import io.testaxis.backend.repositories.BuildRepository
+import io.testaxis.backend.repositories.ProjectRepository
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -10,16 +12,23 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import javax.transaction.Transactional
 
 @SpringBootTest
+@Transactional
 @AutoConfigureMockMvc
-class BuildsControllerTest(@Autowired val mockMvc: MockMvc, @Autowired val buildRepository: BuildRepository) {
+class BuildsControllerTest(
+    @Autowired val mockMvc: MockMvc,
+    @Autowired val buildRepository: BuildRepository,
+    @Autowired val projectRepository: ProjectRepository
+) {
     @Test
     fun `A user can retrieve all builds for a given project`() {
+        val project = projectRepository.save(Project(name = "project", slug = "org/project"))
         val builds = buildRepository.saveAll(
             listOf(
-                Build(branch = "new-feature", commit = "a212a3", slug = "org/project"),
-                Build(branch = "fix-bug", commit = "b72a73", slug = "org/other-project"),
+                Build(project = project, branch = "new-feature", commit = "a212a3", slug = "org/project"),
+                Build(project = project, branch = "fix-bug", commit = "b72a73", slug = "org/other-project"),
             )
         ).toList()
 
