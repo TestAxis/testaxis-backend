@@ -9,7 +9,9 @@ import strikt.api.expectThat
 import strikt.assertions.containsKey
 import java.nio.charset.StandardCharsets
 
-fun ContentResultMatchers.jsonContent(value: Any) = json(ObjectMapper().writeValueAsString(value))
+const val API_ROUTE_PREFIX = "/api/v1"
+
+fun ContentResultMatchers.jsonContent(value: Any) = json(ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(value))
 
 fun ContentResultMatchers.jsonContent(vararg values: Any) = jsonContent(values)
 
@@ -20,3 +22,5 @@ fun ContentResultMatchers.hasValidationError(key: String) = ResultMatcher { resu
 
     expectThat(parsedJson).containsKey(key)
 }
+
+fun apiRoute(url: String) = API_ROUTE_PREFIX + url

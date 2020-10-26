@@ -1,5 +1,6 @@
-package io.testaxis.backend.http.controllers
+package io.testaxis.backend.http.controllers.api
 
+import io.testaxis.backend.apiRoute
 import io.testaxis.backend.jsonContent
 import io.testaxis.backend.models.Project
 import io.testaxis.backend.repositories.ProjectRepository
@@ -23,7 +24,7 @@ class ProjectControllerTest(@Autowired val mockMvc: MockMvc, @Autowired val proj
             )
         )
 
-        mockMvc.get("/projects") {
+        mockMvc.get(apiRoute("/projects")) {
             accept = MediaType.APPLICATION_JSON
         }.andExpect {
             status { isOk }

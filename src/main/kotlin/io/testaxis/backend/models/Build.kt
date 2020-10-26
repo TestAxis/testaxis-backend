@@ -1,5 +1,6 @@
 package io.testaxis.backend.models
 
+import com.fasterxml.jackson.annotation.JsonFormat
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import java.util.Date
@@ -14,9 +15,9 @@ import javax.persistence.OneToMany
 @Entity
 data class Build(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) val id: Long? = null,
-    val branch: String = "",
-    val commit: String = "",
-    val slug: String = "",
+    val branch: String,
+    val commit: String,
+    val slug: String,
     val tag: String? = null,
     val pr: String? = null,
     val service: String? = null,
