@@ -3,6 +3,7 @@ package io.testaxis.backend.http.transformers.dsl
 typealias KeyValueData = Map<String, Any?>
 typealias converter<T> = (T) -> KeyValueData
 
+@Suppress("UnnecessaryAbstractClass")
 abstract class Transformer {
     private var data = mutableMapOf<String, Any?>()
 
@@ -27,4 +28,3 @@ abstract class Transformer {
 
     fun <T> transform(entities: List<T>, converter: converter<T>) = entities.map(converter)
 }
-
