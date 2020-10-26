@@ -1,6 +1,6 @@
 package io.testaxis.backend.models
 
-import com.fasterxml.jackson.annotation.JsonFormat
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import java.util.Date
@@ -24,7 +24,7 @@ data class Build(
     val serviceBuild: String? = null,
     val serviceBuildUrl: String? = null,
     val serviceJob: String? = null,
-    @OneToMany(fetch = FetchType.EAGER) @JoinColumn(name = "build_id")
+    @JsonIgnore @OneToMany(fetch = FetchType.LAZY) @JoinColumn(name = "build_id")
     val testCaseExecutions: List<TestCaseExecution> = emptyList(),
     @CreatedDate val createdAt: Date = Date(),
     @Suppress("ForbiddenComment") // TODO: Fix @CreatedDate and @LastModifiedDate annotations
