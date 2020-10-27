@@ -1,4 +1,4 @@
-package io.testaxis.backend.http
+package io.testaxis.backend.exceptions
 
 import org.springframework.http.HttpStatus
 import org.springframework.validation.BindException

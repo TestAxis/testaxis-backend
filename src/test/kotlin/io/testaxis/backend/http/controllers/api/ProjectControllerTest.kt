@@ -1,5 +1,6 @@
-package io.testaxis.backend.http.controllers
+package io.testaxis.backend.http.controllers.api
 
+import io.testaxis.backend.apiRoute
 import io.testaxis.backend.jsonContent
 import io.testaxis.backend.models.Project
 import io.testaxis.backend.repositories.ProjectRepository
@@ -10,20 +11,22 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import javax.transaction.Transactional
 
 @SpringBootTest
+@Transactional
 @AutoConfigureMockMvc
 class ProjectControllerTest(@Autowired val mockMvc: MockMvc, @Autowired val projectRepository: ProjectRepository) {
     @Test
     fun `A user can retrieve all projects`() {
         val projects = projectRepository.saveAll(
             listOf(
-                Project(name = "example-project-a"),
-                Project(name = "example-project-b")
+                Project(name = "example-project-a", slug = "org/example-project-a"),
+                Project(name = "example-project-b", slug = "org/example-project-b")
             )
         )
 
-        mockMvc.get("/projects") {
+        mockMvc.get(apiRoute("/projects")) {
             accept = MediaType.APPLICATION_JSON
         }.andExpect {
             status { isOk }

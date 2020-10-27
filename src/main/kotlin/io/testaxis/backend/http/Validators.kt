@@ -1,5 +1,6 @@
 package io.testaxis.backend.http
 
+import io.testaxis.backend.exceptions.ResourceNotFoundException
 import org.springframework.web.multipart.MultipartFile
 import javax.validation.Constraint
 import javax.validation.ConstraintValidator
@@ -60,4 +61,24 @@ class FilesHaveMaxSizeValidator : ConstraintValidator<FilesHaveMaxSize, Array<Mu
 
     override fun isValid(files: Array<MultipartFile>, context: ConstraintValidatorContext) =
         files.all { it.size < size }
+}
+
+/**
+ * Validation annotation to validate that a bounded resource from a path variable exists.
+ */
+@Target(AnnotationTarget.VALUE_PARAMETER)
+@MustBeDocumented
+@Constraint(validatedBy = [MustExistValidator::class])
+annotation class MustExist(
+    val message: String = "This resource does not exist.",
+    val groups: Array<KClass<*>> = [],
+    val payload: Array<KClass<out Payload>> = []
+)
+
+/**
+ * Validator implementation for [FilesHaveMaxSize].
+ */
+class MustExistValidator : ConstraintValidator<MustExist, Any?> {
+    override fun isValid(value: Any?, context: ConstraintValidatorContext) =
+        if (value == null) throw ResourceNotFoundException() else true
 }

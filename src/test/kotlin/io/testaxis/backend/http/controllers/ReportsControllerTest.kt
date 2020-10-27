@@ -2,6 +2,7 @@ package io.testaxis.backend.http.controllers
 
 import io.testaxis.backend.hasValidationError
 import io.testaxis.backend.repositories.BuildRepository
+import io.testaxis.backend.repositories.ProjectRepository
 import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,6 +20,7 @@ import strikt.assertions.hasSize
 import strikt.assertions.isA
 import strikt.assertions.isEqualTo
 import strikt.assertions.isFalse
+import strikt.assertions.isNotNull
 import strikt.assertions.isNull
 import strikt.assertions.isTrue
 import javax.persistence.EntityManager
@@ -30,6 +32,7 @@ import javax.transaction.Transactional
 class ReportsControllerTest(
     @Autowired val mockMvc: MockMvc,
     @Autowired val buildRepository: BuildRepository,
+    @Autowired val projectRepository: ProjectRepository,
     @Autowired val entityManager: EntityManager
 ) {
     private val testReport =
@@ -49,6 +52,47 @@ class ReportsControllerTest(
         """.trimIndent()
 
     @Test
+    fun `A user can upload a report for a new project which is then created`() {
+        mockMvc.multipart("/reports") {
+            file(fakeTestReport())
+            param("commit", "abc123")
+            param("branch", "new-feature")
+            param("slug", "company/project")
+        }.andExpect {
+            status { isEqualTo(200) }
+        }
+
+        val createdProject = projectRepository.findBySlug("company/project")
+        expectThat(createdProject).isNotNull()
+        with(buildRepository.findByCommit("abc123")) {
+            entityManager.refresh(this)
+
+            expectThat(project).equals(createdProject!!)
+        }
+    }
+
+    @Test
+    fun `A user can upload a report for an existing project which does not get re-created`() {
+        val fakeProject = projectRepository.findBySlugOrCreate("company/project")
+
+        mockMvc.multipart("/reports") {
+            file(fakeTestReport())
+            param("commit", "abc123")
+            param("branch", "new-feature")
+            param("slug", "company/project")
+        }.andExpect {
+            status { isEqualTo(200) }
+        }
+
+        expectThat(projectRepository.count()).isEqualTo(1)
+        with(buildRepository.findByCommit("abc123")) {
+            entityManager.refresh(this)
+
+            expectThat(project).equals(fakeProject)
+        }
+    }
+
+    @Test
     fun `A user can upload a single report of which the content of failing tests is persisted`() {
         mockMvc.multipart("/reports") {
             file(fakeTestReport())
@@ -62,15 +106,15 @@ class ReportsControllerTest(
         with(buildRepository.findByCommit("abc123")) {
             entityManager.refresh(this) // TODO: Check if this refresh method is the correct approach
 
-            expectThat(testCaseExecutions) hasSize 2
+            expectThat(testCaseExecutions!!) hasSize 2
 
-            expectThat(testCaseExecutions[0].name) isEqualTo "A user can retrieve no projects at all()"
-            expectThat(testCaseExecutions[0].className) isEqualTo "io.testaxis.backend.http.controllers.ProjectControllerTest"
-            expectThat(testCaseExecutions[0].time) isEqualTo 0.038
-            expectThat(testCaseExecutions[0].passed).isFalse()
-            expectThat(testCaseExecutions[0].failureMessage) isEqualTo "java.lang.AssertionError: []: Expected 0 values but got 4"
-            expectThat(testCaseExecutions[0].failureType) isEqualTo "java.lang.AssertionError"
-            expectThat(testCaseExecutions[0].failureContent).isA<String>()
+            expectThat(testCaseExecutions!![0].name) isEqualTo "A user can retrieve no projects at all()"
+            expectThat(testCaseExecutions!![0].className) isEqualTo "io.testaxis.backend.http.controllers.ProjectControllerTest"
+            expectThat(testCaseExecutions!![0].time) isEqualTo 0.038
+            expectThat(testCaseExecutions!![0].passed).isFalse()
+            expectThat(testCaseExecutions!![0].failureMessage) isEqualTo "java.lang.AssertionError: []: Expected 0 values but got 4"
+            expectThat(testCaseExecutions!![0].failureType) isEqualTo "java.lang.AssertionError"
+            expectThat(testCaseExecutions!![0].failureContent).isA<String>()
                 .contains("java.lang.AssertionError: []: Expected 0 values but got 4")
                 .contains("at org.skyscreamer.jsonassert.JSONAssert.assertEquals(JSONAssert.java:417)")
                 .contains("at java.base/java.lang.Thread.run(Thread.java:834)")
@@ -91,15 +135,15 @@ class ReportsControllerTest(
         with(buildRepository.findByCommit("abc123")) {
             entityManager.refresh(this) // TODO: Check if this refresh method is the correct approach
 
-            expectThat(testCaseExecutions) hasSize 2
+            expectThat(testCaseExecutions!!) hasSize 2
 
-            expectThat(testCaseExecutions[1].name) isEqualTo "A user can retrieve all projects()"
-            expectThat(testCaseExecutions[1].className) isEqualTo "io.testaxis.backend.http.controllers.ProjectControllerTest"
-            expectThat(testCaseExecutions[1].time) isEqualTo 0.042
-            expectThat(testCaseExecutions[1].passed).isTrue()
-            expectThat(testCaseExecutions[1].failureMessage).isNull()
-            expectThat(testCaseExecutions[1].failureType).isNull()
-            expectThat(testCaseExecutions[1].failureContent).isNull()
+            expectThat(testCaseExecutions!![1].name) isEqualTo "A user can retrieve all projects()"
+            expectThat(testCaseExecutions!![1].className) isEqualTo "io.testaxis.backend.http.controllers.ProjectControllerTest"
+            expectThat(testCaseExecutions!![1].time) isEqualTo 0.042
+            expectThat(testCaseExecutions!![1].passed).isTrue()
+            expectThat(testCaseExecutions!![1].failureMessage).isNull()
+            expectThat(testCaseExecutions!![1].failureType).isNull()
+            expectThat(testCaseExecutions!![1].failureContent).isNull()
         }
     }
 
