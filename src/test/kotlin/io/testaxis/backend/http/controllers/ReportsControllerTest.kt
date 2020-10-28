@@ -106,15 +106,15 @@ class ReportsControllerTest(
         with(buildRepository.findByCommit("abc123")) {
             entityManager.refresh(this) // TODO: Check if this refresh method is the correct approach
 
-            expectThat(testCaseExecutions!!) hasSize 2
+            expectThat(testCaseExecutions) hasSize 2
 
-            expectThat(testCaseExecutions!![0].name) isEqualTo "A user can retrieve no projects at all()"
-            expectThat(testCaseExecutions!![0].className) isEqualTo "io.testaxis.backend.http.controllers.ProjectControllerTest"
-            expectThat(testCaseExecutions!![0].time) isEqualTo 0.038
-            expectThat(testCaseExecutions!![0].passed).isFalse()
-            expectThat(testCaseExecutions!![0].failureMessage) isEqualTo "java.lang.AssertionError: []: Expected 0 values but got 4"
-            expectThat(testCaseExecutions!![0].failureType) isEqualTo "java.lang.AssertionError"
-            expectThat(testCaseExecutions!![0].failureContent).isA<String>()
+            expectThat(testCaseExecutions[0].name) isEqualTo "A user can retrieve no projects at all()"
+            expectThat(testCaseExecutions[0].className) isEqualTo "io.testaxis.backend.http.controllers.ProjectControllerTest"
+            expectThat(testCaseExecutions[0].time) isEqualTo 0.038
+            expectThat(testCaseExecutions[0].passed).isFalse()
+            expectThat(testCaseExecutions[0].failureMessage) isEqualTo "java.lang.AssertionError: []: Expected 0 values but got 4"
+            expectThat(testCaseExecutions[0].failureType) isEqualTo "java.lang.AssertionError"
+            expectThat(testCaseExecutions[0].failureContent).isA<String>()
                 .contains("java.lang.AssertionError: []: Expected 0 values but got 4")
                 .contains("at org.skyscreamer.jsonassert.JSONAssert.assertEquals(JSONAssert.java:417)")
                 .contains("at java.base/java.lang.Thread.run(Thread.java:834)")
@@ -135,15 +135,15 @@ class ReportsControllerTest(
         with(buildRepository.findByCommit("abc123")) {
             entityManager.refresh(this) // TODO: Check if this refresh method is the correct approach
 
-            expectThat(testCaseExecutions!!) hasSize 2
+            expectThat(testCaseExecutions) hasSize 2
 
-            expectThat(testCaseExecutions!![1].name) isEqualTo "A user can retrieve all projects()"
-            expectThat(testCaseExecutions!![1].className) isEqualTo "io.testaxis.backend.http.controllers.ProjectControllerTest"
-            expectThat(testCaseExecutions!![1].time) isEqualTo 0.042
-            expectThat(testCaseExecutions!![1].passed).isTrue()
-            expectThat(testCaseExecutions!![1].failureMessage).isNull()
-            expectThat(testCaseExecutions!![1].failureType).isNull()
-            expectThat(testCaseExecutions!![1].failureContent).isNull()
+            expectThat(testCaseExecutions[1].name) isEqualTo "A user can retrieve all projects()"
+            expectThat(testCaseExecutions[1].className) isEqualTo "io.testaxis.backend.http.controllers.ProjectControllerTest"
+            expectThat(testCaseExecutions[1].time) isEqualTo 0.042
+            expectThat(testCaseExecutions[1].passed).isTrue()
+            expectThat(testCaseExecutions[1].failureMessage).isNull()
+            expectThat(testCaseExecutions[1].failureType).isNull()
+            expectThat(testCaseExecutions[1].failureContent).isNull()
         }
     }
 

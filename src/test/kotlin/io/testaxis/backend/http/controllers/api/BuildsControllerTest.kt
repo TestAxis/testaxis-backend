@@ -2,6 +2,7 @@ package io.testaxis.backend.http.controllers.api
 
 import io.testaxis.backend.apiRoute
 import io.testaxis.backend.models.Build
+import io.testaxis.backend.models.BuildStatus
 import io.testaxis.backend.models.Project
 import io.testaxis.backend.repositories.BuildRepository
 import io.testaxis.backend.repositories.ProjectRepository
@@ -29,8 +30,8 @@ class BuildsControllerTest(
         val project = projectRepository.save(Project(name = "project", slug = "org/project"))
         val builds = buildRepository.saveAll(
             listOf(
-                Build(project = project, branch = "new-feature", commit = "a212a3", slug = "org/project"),
-                Build(project = project, branch = "fix-bug", commit = "b72a73", slug = "org/project"),
+                Build(project = project, status = BuildStatus.SUCCESS, branch = "new-feature", commit = "a212a3", slug = "org/project"),
+                Build(project = project, status = BuildStatus.TESTS_FAILED, branch = "fix-bug", commit = "b72a73", slug = "org/project"),
             )
         ).toList()
         entityManager.refresh(project)
@@ -44,11 +45,13 @@ class BuildsControllerTest(
             jsonPath("$[0].branch") { value("new-feature") }
             jsonPath("$[0].commit") { value("a212a3") }
             jsonPath("$[0].slug") { value("org/project") }
+            jsonPath("$[0].status") { value("success") }
 
             jsonPath("$[1].id") { value(builds[1].id!!) }
             jsonPath("$[1].branch") { value("fix-bug") }
             jsonPath("$[1].commit") { value("b72a73") }
             jsonPath("$[1].slug") { value("org/project") }
+            jsonPath("$[1].status") { value("tests_failed") }
         }
     }
 
