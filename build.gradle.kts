@@ -13,6 +13,7 @@ plugins {
     kotlin("jvm") version "1.4.10"
     kotlin("plugin.spring") version "1.4.10"
     kotlin("plugin.jpa") version "1.4.10"
+    kotlin("plugin.allopen") version "1.4.10"
 
     id("io.gitlab.arturbosch.detekt") version "1.14.1"
     id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
@@ -45,6 +46,12 @@ dependencies {
     testImplementation("io.strikt:strikt-core:0.28.0")
 }
 
+allOpen {
+    annotation("javax.persistence.Entity")
+    annotation("javax.persistence.Embeddable")
+    annotation("javax.persistence.MappedSuperclass")
+}
+
 tasks.withType<Test> {
     useJUnitPlatform()
 }
@@ -62,4 +69,15 @@ compileKotlin.kotlinOptions {
 val compileTestKotlin: KotlinCompile by tasks
 compileTestKotlin.kotlinOptions {
     languageVersion = "1.4"
+}
+
+detekt {
+    config = files("detekt-config.yml")
+    buildUponDefaultConfig = true
+
+    reports {
+        html.enabled = false
+        xml.enabled = false
+        txt.enabled = false
+    }
 }
