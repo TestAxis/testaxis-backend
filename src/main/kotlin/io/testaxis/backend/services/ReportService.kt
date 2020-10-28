@@ -2,6 +2,7 @@ package io.testaxis.backend.services
 
 import io.testaxis.backend.actions.ParseJUnitXML
 import io.testaxis.backend.models.Build
+import io.testaxis.backend.models.BuildStatus
 import io.testaxis.backend.models.TestCaseExecution
 import io.testaxis.backend.repositories.BuildRepository
 import io.testaxis.backend.repositories.ProjectRepository
@@ -11,9 +12,7 @@ import java.io.InputStream
 
 @Service
 class ReportService(
-    val projectRepository: ProjectRepository,
     val buildRepository: BuildRepository,
-    val testCaseExecutionRepository: TestCaseExecutionRepository,
     val parser: ParseJUnitXML
 ) {
     fun parseAndPersistTestReports(build: Build, reports: List<InputStream>) =
@@ -32,8 +31,10 @@ class ReportService(
                         failureContent = it.failureContent,
                     )
                 }
-            }.also {
-                testCaseExecutionRepository.saveAll(it)
+            }.also { executions ->
+                build.testCaseExecutions.addAll(executions)
+                build.status = if (executions.all { it.passed }) BuildStatus.SUCCESS else BuildStatus.TESTS_FAILED
+                buildRepository.save(build)
             }
         }
 }
