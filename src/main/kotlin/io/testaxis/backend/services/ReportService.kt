@@ -5,8 +5,6 @@ import io.testaxis.backend.models.Build
 import io.testaxis.backend.models.BuildStatus
 import io.testaxis.backend.models.TestCaseExecution
 import io.testaxis.backend.repositories.BuildRepository
-import io.testaxis.backend.repositories.ProjectRepository
-import io.testaxis.backend.repositories.TestCaseExecutionRepository
 import org.springframework.stereotype.Service
 import java.io.InputStream
 

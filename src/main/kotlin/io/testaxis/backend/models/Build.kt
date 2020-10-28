@@ -31,7 +31,6 @@ class Build(
     @LastModifiedDate var updatedAt: Date = Date(),
 ) : AbstractJpaPersistable<Long>()
 
-
 enum class BuildStatus {
     SUCCESS,
     BUILD_FAILED,
