@@ -1,6 +1,7 @@
 package io.testaxis.backend.http.controllers.api
 
 import io.testaxis.backend.apiRoute
+import io.testaxis.backend.exceptions.ResourceNotFoundException
 import io.testaxis.backend.models.Build
 import io.testaxis.backend.models.Project
 import io.testaxis.backend.models.TestCaseExecution
@@ -93,11 +94,7 @@ class TestCaseExecutionsControllerTest(
         }.andExpect {
             status { isOk }
 
-            jsonPath("$.id") { value(testCaseExecutions[0].id!!) }
-            jsonPath("$.name") { value("A user can upload a single report with build information that is persisted()") }
-            jsonPath("$.class_name") { value("io.testaxis.backend.http.controllers.ReportsControllerTest") }
-            jsonPath("$.passed") { value(true) }
-            jsonPath("$.failure_message") { isEmpty }
+            throw ResourceNotFoundException()
         }
     }
 

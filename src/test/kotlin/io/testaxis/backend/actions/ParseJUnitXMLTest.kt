@@ -41,7 +41,7 @@ class ParseJUnitXMLTest {
         val testSuites = ParseJUnitXML()(listOf(testReport.byteInputStream(), testReport.byteInputStream()))
 
         expectThat(testSuites) hasSize 2
-        expectThat(testSuites[0].name) isEqualTo "io.testaxis.backend.http.controllers.ProjectControllerTest"
+        expectThat(testSuites[0].name) isEqualTo "io.testaxis.backend.http.controllers.ProjectControllerTestFAIL"
         expectThat(testSuites[1].name) isEqualTo "io.testaxis.backend.http.controllers.ProjectControllerTest"
     }
 
