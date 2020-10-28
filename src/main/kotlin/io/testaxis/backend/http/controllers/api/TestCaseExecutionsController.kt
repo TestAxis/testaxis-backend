@@ -20,7 +20,7 @@ class TestCaseExecutionsController(val transformer: TestCaseExecutionTransformer
     // TODO: scope build by project
     @GetMapping
     fun index(@PathVariable @MustExist build: Build) =
-        transformer.transform(build.testCaseExecutions!!, transformer::summary)
+        transformer.transform(build.testCaseExecutions, transformer::summary)
 
     @Suppress("ForbiddenComment")
     // TODO: scope execution by build and project
