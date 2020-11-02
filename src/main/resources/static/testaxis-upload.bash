@@ -719,7 +719,6 @@ fi
 # no files found
 if [ "$files" = "" ]; then
   say "${r}-->${x} No test report found."
-  exit ${exit_with}
 fi
 
 if [ "$url_o" != "" ]; then
@@ -740,19 +739,21 @@ say "    ${e}query:${x} $query"
 say "${e}==>${x} Uploading to TestAxis"
 
 # Construct file upload arguments
-curlfiles=""
-while IFS='' read -r file; do
-  curlfiles=$curlfiles"-F files=@$file "
-done <<<"$(echo -e "$files")"
+curl_files=""
+if [ "$files" != "" ]; then
+  # shellcheck disable=SC2089
+  while IFS='' read -r file; do
+    curl_files="$curl_files -F files=@$file"
+  done <<<"$(echo -e "$files")"
+fi
 
 # shellcheck disable=SC2086,2090
 res=$(curl -X POST $curl_s $curlargs $cacert \
   --retry 5 --retry-delay 2 --connect-timeout 2 \
-  -H 'Content-Type: multipart/form-data' \
-  $curlfiles \
+  $curl_files \
   --write-out "\nHTTP %{http_code}" \
   -o - \
-  "$url?$query&attempt=$i" || echo 'HTTP 500')
+  "$url?$query&attempt=$i" || echo 'HTTP 999')
 
 status=$(echo "$res" | tail -1 | cut -d' ' -f2)
 if [ "$status" = "" ] || [ "$status" = "200" ]; then
