@@ -2,6 +2,7 @@ package io.testaxis.backend.http.controllers
 
 import io.testaxis.backend.hasValidationError
 import io.testaxis.backend.http.transformers.dsl.KeyValueData
+import io.testaxis.backend.models.BuildStatus
 import io.testaxis.backend.repositories.BuildRepository
 import io.testaxis.backend.repositories.ProjectRepository
 import org.hamcrest.Matchers.containsString
@@ -240,18 +241,6 @@ class ReportsControllerTest(
     }
 
     @Test
-    fun `A user cannot upload 0 reports`() {
-        mockMvc.multipart("/reports") {
-            param("commit", "a2b4fa")
-            param("branch", "new-feature")
-            param("slug", "company/project")
-        }.andExpect {
-            status { isEqualTo(422) }
-            content { hasValidationError("store.files") }
-        }
-    }
-
-    @Test
     fun `A user cannot upload a report without a commit hash`() {
         mockMvc.multipart("/reports") {
             file(fakeTestReport())
@@ -297,6 +286,45 @@ class ReportsControllerTest(
         }
 
         verify(simpMessagingTemplate).convertAndSend(eq("/topic/builds"), any<KeyValueData>())
+    }
+
+    @Test
+    fun `A user can report a build status without a test report`() {
+        mockMvc.multipart("/reports") {
+            param("build_status", "success")
+            param("commit", "ae12be2")
+            param("branch", "new-feature")
+            param("slug", "company/project")
+        }.andExpect {
+            status { isEqualTo(200) }
+        }
+
+        with(buildRepository.findByCommit("ae12be2")) {
+            expectThat(commit) isEqualTo "ae12be2"
+            expectThat(branch) isEqualTo "new-feature"
+            expectThat(slug) isEqualTo "company/project"
+            expectThat(status) isEqualTo BuildStatus.SUCCESS
+        }
+    }
+
+    @Test
+    fun `A user can upload a test report and a build status that gets overridden because tests failed`() {
+        mockMvc.multipart("/reports") {
+            file(fakeTestReport())
+            param("build_status", "build_failed")
+            param("commit", "ae12be2")
+            param("branch", "new-feature")
+            param("slug", "company/project")
+        }.andExpect {
+            status { isEqualTo(200) }
+        }
+
+        with(buildRepository.findByCommit("ae12be2")) {
+            expectThat(commit) isEqualTo "ae12be2"
+            expectThat(branch) isEqualTo "new-feature"
+            expectThat(slug) isEqualTo "company/project"
+            expectThat(status) isEqualTo BuildStatus.TESTS_FAILED
+        }
     }
 
     private fun fakeTestReport(mimeType: String = MediaType.TEXT_XML_VALUE) = MockMultipartFile(

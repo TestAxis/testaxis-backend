@@ -48,6 +48,6 @@ jobs:
     - name: Run ktlint with Gradle
       run: ./gradlew ktlintCheck
     - name: Upload test results to TestAxis
-      run: ./src/main/resources/static/testaxis-upload.bash -s build/test-results/test/
+      run: ./src/main/resources/static/testaxis-upload.bash -s build/test-results/test/ -p ${{ job.status }}
       # Use `bash <(curl -s http://localhost:8080/testaxis-upload.bash)` to retrieve the upload script for other projects
       if: always()

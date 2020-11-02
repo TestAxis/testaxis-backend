@@ -32,8 +32,8 @@ class FilesHaveTypeValidator : ConstraintValidator<FilesHaveType, Array<Multipar
         types = annotation.types.asList()
     }
 
-    override fun isValid(files: Array<MultipartFile>, context: ConstraintValidatorContext) =
-        files.all { types.contains(it.contentType) }
+    override fun isValid(files: Array<MultipartFile>?, context: ConstraintValidatorContext) =
+        files?.all { types.contains(it.contentType) } ?: true
 }
 
 /**
@@ -59,8 +59,8 @@ class FilesHaveMaxSizeValidator : ConstraintValidator<FilesHaveMaxSize, Array<Mu
         size = annotation.size
     }
 
-    override fun isValid(files: Array<MultipartFile>, context: ConstraintValidatorContext) =
-        files.all { it.size < size }
+    override fun isValid(files: Array<MultipartFile>?, context: ConstraintValidatorContext) =
+        files?.all { it.size < size } ?: true
 }
 
 /**

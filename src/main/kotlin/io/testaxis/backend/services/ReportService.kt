@@ -34,7 +34,9 @@ class ReportService(
                 }
             }.also { executions ->
                 build.testCaseExecutions.addAll(executions)
-                build.status = if (executions.all { it.passed }) BuildStatus.SUCCESS else BuildStatus.TESTS_FAILED
+                if (executions.any { !it.passed }) {
+                    build.status = BuildStatus.TESTS_FAILED
+                }
                 buildRepository.save(build)
 
                 applicationEventPublisher.publishEvent(BuildWasCreatedEvent(this, build))

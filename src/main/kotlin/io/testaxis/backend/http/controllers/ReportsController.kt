@@ -4,6 +4,7 @@ import io.testaxis.backend.config.AppConfig
 import io.testaxis.backend.http.FilesHaveMaxSize
 import io.testaxis.backend.http.FilesHaveType
 import io.testaxis.backend.models.Build
+import io.testaxis.backend.models.BuildStatus
 import io.testaxis.backend.models.Project
 import io.testaxis.backend.repositories.ProjectRepository
 import io.testaxis.backend.services.ReportService
@@ -15,21 +16,20 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import javax.validation.Valid
 import javax.validation.constraints.NotBlank
-import javax.validation.constraints.NotEmpty
 
 @RestController
 @Validated
 class ReportsController(val reportService: ReportService, val projectRepository: ProjectRepository) {
     @PostMapping("reports")
     fun store(
-        @RequestParam("files") @NotEmpty
+        @RequestParam("files", required = false)
         @FilesHaveType(types = [MimeTypeUtils.APPLICATION_XML_VALUE, MimeTypeUtils.TEXT_XML_VALUE])
         @FilesHaveMaxSize(size = AppConfig.UPLOAD_LIMIT)
-        files: Array<MultipartFile>,
+        files: Array<MultipartFile>?,
         @Valid request: UploadReportRequest
     ) = reportService.parseAndPersistTestReports(
         request.toBuild(projectRepository.findBySlugOrCreate(request.slug)),
-        files.map { it.inputStream }
+        files?.map { it.inputStream } ?: emptyList()
     ).let { executions ->
         """
             -------------------------------------------
@@ -51,9 +51,11 @@ data class UploadReportRequest(
     val build: String?,
     @Suppress("ConstructorParameterNaming") val build_url: String?,
     val job: String?,
+    @Suppress("ConstructorParameterNaming") val build_status: String?,
 ) {
     fun toBuild(project: Project) = Build(
         project = project,
+        status = BuildStatus.values().find { it.name.toLowerCase() == build_status } ?: BuildStatus.UNKNOWN,
         branch = branch,
         commit = commit,
         slug = slug,

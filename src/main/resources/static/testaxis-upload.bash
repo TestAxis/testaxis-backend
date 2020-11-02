@@ -46,6 +46,7 @@ tag="$VCS_TAG"
 build_url="$CI_BUILD_URL"
 build="$CI_BUILD_ID"
 job="$CI_JOB_ID"
+build_status="unknown"
 
 proj_root="$git_root"
 
@@ -74,6 +75,13 @@ show_help() {
 
     -s DIR       Directory to search for test reports.
                  Already searches project root and artifact folders.
+
+    -p STATUS    The status of the build.
+                 Either the status supplied by a supported CI runner or one of the following values:
+                 success, build_failed, tests_failed, or unknown.
+                 The status will always be overridden to tests_failed if a test report with failing
+                 tests is uploaded.
+
     -t TOKEN     Set the private repository token
                  (option) set environment variable TESTAXIS_TOKEN=:uuid
 
@@ -104,8 +112,8 @@ show_help() {
 
     -- Communication --
     -u URL       Set the target url
-                 (option) Set environment variable TESTAXIS_URL=https://my-hosted-testaxis.com
-    -r SLUG      owner/repo slug of the porject
+                 (option) Set environment variable TESTAXIS_URL=https://my-hosted-testaxis.com/reports
+    -r SLUG      owner/repo slug of the project
                  (option) set environment variable TESTAXIS_SLUG=:owner/:repo
     -S PATH      File path to your cacert.pem file used to verify ssl
                  (option) Set environment variable: TESTAXIS_CA_BUNDLE="/path/to/ca.pem"
@@ -155,8 +163,14 @@ if [ $# != 0 ]; then
       e=""
       x=""
       ;;
+    "p")
+      build_status="$OPTARG"
+      ;;
     "P")
       pr_o="$OPTARG"
+      ;;
+    "r")
+      slug_o="$OPTARG"
       ;;
     "R")
       git_root="$OPTARG"
@@ -525,6 +539,13 @@ elif [ "$GITHUB_ACTIONS" != "" ]; then
   build="${GITHUB_RUN_ID}"
   build_url=$(urlencode "http://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}")
 
+  case "$build_status" in
+    "success") build_status="success" ;;
+    "failure") build_status="build_failed" ;;
+    "cancelled") build_status="build_failed" ;;
+    *) build_status="unknown" ;;
+  esac
+
 elif [ "$SYSTEM_TEAMFOUNDATIONSERVERURI" != "" ]; then
   say "$e==>$x Azure Pipelines detected."
   # https://docs.microsoft.com/en-us/azure/devops/pipelines/build/variables?view=vsts
@@ -662,7 +683,7 @@ fi
 query="branch=$branch       &commit=$commit       &build=$([ "$build_o" = "" ] && echo "$build" || echo "$build_o")\
        &build_url=$build_url       &tag=$([ "$tag_o" = "" ] && echo "$tag" || echo "$tag_o")\
        &slug=$urlencoded_slug       &service=$service       &pr=$([ "$pr_o" = "" ] && echo "${pr##\#}" || echo "${pr_o##\#}")\
-       &job=$job"
+       &job=$job       &build_status=$build_status"
 
 if [ -n "$project" ] && [ -n "$server_uri" ]; then
   query=$(echo "$query&project=$project&server_uri=$server_uri" | tr -d ' ')
@@ -698,7 +719,6 @@ fi
 # no files found
 if [ "$files" = "" ]; then
   say "${r}-->${x} No test report found."
-  exit ${exit_with}
 fi
 
 if [ "$url_o" != "" ]; then
@@ -719,19 +739,21 @@ say "    ${e}query:${x} $query"
 say "${e}==>${x} Uploading to TestAxis"
 
 # Construct file upload arguments
-curlfiles=""
-while IFS='' read -r file; do
-  curlfiles=$curlfiles"-F files=@$file "
-done <<<"$(echo -e "$files")"
+curl_files=""
+if [ "$files" != "" ]; then
+  # shellcheck disable=SC2089
+  while IFS='' read -r file; do
+    curl_files="$curl_files -F files=@$file"
+  done <<<"$(echo -e "$files")"
+fi
 
 # shellcheck disable=SC2086,2090
 res=$(curl -X POST $curl_s $curlargs $cacert \
   --retry 5 --retry-delay 2 --connect-timeout 2 \
-  -H 'Content-Type: multipart/form-data' \
-  $curlfiles \
+  $curl_files \
   --write-out "\nHTTP %{http_code}" \
   -o - \
-  "$url?$query&attempt=$i" || echo 'HTTP 500')
+  "$url?$query&attempt=$i" || echo 'HTTP 999')
 
 status=$(echo "$res" | tail -1 | cut -d' ' -f2)
 if [ "$status" = "" ] || [ "$status" = "200" ]; then
