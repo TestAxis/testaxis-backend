@@ -22,7 +22,7 @@ import javax.validation.constraints.NotBlank
 class ReportsController(val reportService: ReportService, val projectRepository: ProjectRepository) {
     @PostMapping("reports")
     fun store(
-        @RequestParam("files", required=false)
+        @RequestParam("files", required = false)
         @FilesHaveType(types = [MimeTypeUtils.APPLICATION_XML_VALUE, MimeTypeUtils.TEXT_XML_VALUE])
         @FilesHaveMaxSize(size = AppConfig.UPLOAD_LIMIT)
         files: Array<MultipartFile>?,
