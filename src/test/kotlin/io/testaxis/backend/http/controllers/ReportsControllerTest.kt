@@ -1,14 +1,20 @@
 package io.testaxis.backend.http.controllers
 
 import io.testaxis.backend.hasValidationError
+import io.testaxis.backend.http.transformers.dsl.KeyValueData
 import io.testaxis.backend.repositories.BuildRepository
 import io.testaxis.backend.repositories.ProjectRepository
 import org.hamcrest.Matchers.containsString
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.eq
+import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.http.MediaType
+import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.multipart
@@ -35,6 +41,9 @@ class ReportsControllerTest(
     @Autowired val projectRepository: ProjectRepository,
     @Autowired val entityManager: EntityManager
 ) {
+    @SpyBean
+    lateinit var simpMessagingTemplate: SimpMessagingTemplate
+
     private val testReport =
         """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -276,6 +285,18 @@ class ReportsControllerTest(
             status { isEqualTo(422) }
             content { hasValidationError("slug") }
         }
+    }
+
+    @Test
+    fun `A user is notified through websockets after uploading a test report`() {
+        mockMvc.multipart("/reports") {
+            file(fakeTestReport())
+            param("commit", "a2b4fa")
+            param("branch", "new-feature")
+            param("slug", "company/project")
+        }
+
+        verify(simpMessagingTemplate).convertAndSend(eq("/topic/builds"), any<KeyValueData>())
     }
 
     private fun fakeTestReport(mimeType: String = MediaType.TEXT_XML_VALUE) = MockMultipartFile(
