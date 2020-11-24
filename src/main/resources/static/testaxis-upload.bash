@@ -15,6 +15,7 @@ env="$TESTAXIS_ENV"
 service=""
 token=""
 search_in=""
+search_coverage_in=""
 # shellcheck disable=SC2153
 exit_with=1
 curlargs=""
@@ -74,7 +75,8 @@ show_help() {
                  This is non-exclusive, use -s "*.foo" to match specific paths.
 
     -s DIR       Directory to search for test reports.
-                 Already searches project root and artifact folders.
+
+    -c DIR       Directory to search for coverage reports.
 
     -p STATUS    The status of the build.
                  Either the status supplied by a supported CI runner or one of the following values:
@@ -135,7 +137,7 @@ urlencode() {
 }
 
 if [ $# != 0 ]; then
-  while getopts "a:A:b:B:cC:dD:e:f:F:g:G:hJ:k:Kn:p:P:q:r:R:s:S:t:T:u:U:vx:X:ZN:" o; do
+  while getopts "a:A:b:B:c:C:dD:e:f:F:g:G:hJ:k:Kn:p:P:q:r:R:s:S:t:T:u:U:vx:X:ZN:" o; do
     case "$o" in
     "N")
       parent=$OPTARG
@@ -145,6 +147,9 @@ if [ $# != 0 ]; then
       ;;
     "B")
       branch_o="$OPTARG"
+      ;;
+    "c")
+      search_coverage_in="$OPTARG"
       ;;
     "C")
       commit_o="$OPTARG"
@@ -693,6 +698,16 @@ if [ "$parent" != "" ]; then
   query=$(echo "parent=$parent&$query" | tr -d ' ')
 fi
 
+if [ "$url_o" != "" ]; then
+  url="$url_o"
+fi
+
+query=$(echo "${query}" | tr -d ' ')
+# Full query without token (to display on terminal output)
+queryNoToken=$(echo "package=bash-$VERSION&token=secret&$query" | tr -d ' ')
+# now add token to query
+query=$(echo "package=bash-$VERSION&token=$token&$query" | tr -d ' ')
+
 if [ "$search_in_o" != "" ]; then
   # location override
   search_in="${search_in_o%/}"
@@ -721,22 +736,12 @@ if [ "$files" = "" ]; then
   say "${r}-->${x} No test report found."
 fi
 
-if [ "$url_o" != "" ]; then
-  url="$url_o"
-fi
-
 say "${e}==>${x} Preparing upload"
-
-query=$(echo "${query}" | tr -d ' ')
-# Full query without token (to display on terminal output)
-queryNoToken=$(echo "package=bash-$VERSION&token=secret&$query" | tr -d ' ')
-# now add token to query
-query=$(echo "package=bash-$VERSION&token=$token&$query" | tr -d ' ')
 
 say "    ${e}url:${x} $url"
 say "    ${e}query:${x} $query"
 
-say "${e}==>${x} Uploading to TestAxis"
+say "${e}==>${x} Uploading test report to TestAxis"
 
 # Construct file upload arguments
 curl_files=""
@@ -758,8 +763,67 @@ res=$(curl -X POST $curl_s $curlargs $cacert \
 status=$(echo "$res" | tail -1 | cut -d' ' -f2)
 if [ "$status" = "" ] || [ "$status" = "200" ]; then
   say "    Upload successful: \n ${b}$(echo "$res" | sed '$d')${x}"
-  exit 0
+  testaxis_build_id="$(echo "$res" | tail -n2 | head -n1)"
 else
   say "    An error occurred: \n ${r}${res}${x}"
   exit ${exit_with}
+fi
+
+
+say "$e==>$x Searching for coverage reports ($search_coverage_in) in:"
+for _path in $search_coverage_in; do
+  say "    ${g}+${x} $_path"
+done
+
+patterns="find $search_coverage_in -name *.xml"
+files=$(eval "$patterns" || echo '')
+
+num_of_files=$(echo "$files" | wc -l | tr -d ' ')
+if [ "$num_of_files" != '' ] && [ "$files" != '' ]; then
+  say "    ${e}->${x} Found $num_of_files reports"
+
+  while IFS='' read -r file; do
+    replace=$search_coverage_in"/"
+    say "    ${g}+${x} ${file/$replace/}"
+  done <<<"$(echo -e "$files")"
+fi
+
+# no files found
+if [ "$files" = "" ]; then
+  say "${r}-->${x} No coverage reports found."
+else
+  say "${e}==>${x} Preparing upload"
+
+  url="$url/$testaxis_build_id/coverage"
+
+  say "    ${e}url:${x} $url"
+  say "    ${e}query:${x} $query"
+
+  say "${e}==>${x} Uploading coverage reports to TestAxis"
+
+  # Construct file upload arguments
+  curl_files=""
+  if [ "$files" != "" ]; then
+    # shellcheck disable=SC2089
+    while IFS='' read -r file; do
+      curl_files="$curl_files -F files=@$file"
+    done <<<"$(echo -e "$files")"
+  fi
+
+  # shellcheck disable=SC2086,2090
+  res=$(curl -X POST $curl_s $curlargs $cacert \
+    --retry 5 --retry-delay 2 --connect-timeout 2 \
+    $curl_files \
+    --write-out "\nHTTP %{http_code}" \
+    -o - \
+    "$url?$query&attempt=$i" || echo 'HTTP 999')
+
+  status=$(echo "$res" | tail -1 | cut -d' ' -f2)
+  if [ "$status" = "" ] || [ "$status" = "200" ]; then
+    say "    Upload successful: \n ${b}$(echo "$res" | sed '$d')${x}"
+    exit 0
+  else
+    say "    An error occurred: \n ${r}${res}${x}"
+    exit ${exit_with}
+  fi
 fi
