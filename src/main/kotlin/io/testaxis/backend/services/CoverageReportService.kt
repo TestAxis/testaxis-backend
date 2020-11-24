@@ -33,9 +33,11 @@ class CoverageReportService(
                 .toMap()
 
             build.testCaseExecutions
-                .firstOrNull { it.className == report.testClassName && it.name == report.testMethodName }
+                .firstOrNull {
+                    it.className == report.testClassName && it.name.substringBeforeLast('(') == report.testMethodName
+                }
                 .ifNull { logger.warn("No test execution found for ${report.testClassName}.${report.testMethodName}.") }
-                ?.apply { coveredLines.putAll(results) }
+                ?.apply { coveredLines = results.toMutableMap() }
         }.filterNotNull().also {
             testCaseExecutionRepository.saveAll(it)
         }

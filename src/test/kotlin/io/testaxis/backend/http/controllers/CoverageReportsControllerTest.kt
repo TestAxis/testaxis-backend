@@ -74,16 +74,12 @@ class CoverageReportsControllerTest(
             status { isEqualTo(200) }
         }
 
-        with(testCaseExecution) {
-            entityManager.refresh(this)
-
-            expectThat(coveredLines).isNotEmpty()
-        }
+        expectThat(testCaseExecution.coveredLines).isNotEmpty()
     }
 
     @Test
     fun `A user can upload a coverage report for non existing tests that will be gracefully skipped`() {
-        val testCaseExecution = fakeTestCaseExecution(name = "doesNotExist")
+        val testCaseExecution = fakeTestCaseExecution(name = "doesNotExist()")
 
         mockMvc.multipart("/reports/${testCaseExecution.build.id}/coverage") {
             file(fakeReport())
@@ -91,11 +87,7 @@ class CoverageReportsControllerTest(
             status { isEqualTo(200) }
         }
 
-        with(testCaseExecution) {
-            entityManager.refresh(this)
-
-            expectThat(coveredLines).isEmpty()
-        }
+        expectThat(testCaseExecution.coveredLines).isEmpty()
     }
 
     @Test
@@ -108,11 +100,7 @@ class CoverageReportsControllerTest(
             status { isEqualTo(200) }
         }
 
-        with(testCaseExecution) {
-            entityManager.refresh(this)
-
-            expectThat(coveredLines).hasEntry("com/example/Calculator.java", listOf(6, 7, 8, 11, 13))
-        }
+        expectThat(testCaseExecution.coveredLines).hasEntry("com/example/Calculator.java", listOf(6, 7, 8, 11, 13))
     }
 
     @Test
@@ -126,8 +114,6 @@ class CoverageReportsControllerTest(
         }
 
         with(testCaseExecution) {
-            entityManager.refresh(this)
-
             expectThat(listOf(coveredLines["com/example/Calculator.java"])).not { contains(6, 3) }
             expectThat(coveredLines).not { containsKey("com/example/Counter.java") }
         }
@@ -156,7 +142,7 @@ class CoverageReportsControllerTest(
         }
     }
 
-    private fun fakeTestCaseExecution(name: String = "testAddsNumbers"): TestCaseExecution {
+    private fun fakeTestCaseExecution(name: String = "testAddsNumbers()"): TestCaseExecution {
         val project = projectRepository.findBySlugOrCreate("company/project")
         val build = buildRepository.save(
             Build(branch = "new-feature", commit = "abc123", slug = "company/project", project = project)
