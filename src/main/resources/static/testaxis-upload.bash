@@ -770,7 +770,12 @@ else
 fi
 
 
-say "$e==>$x Searching for coverage reports ($search_coverage_in) in:"
+if [ "$search_coverage_in" = "" ]; then
+  say "${r}-->${x} No coverage path given (option -k), ignoring coverage."
+  exit 0
+fi
+
+say "$e==>$x Searching for coverage reports in:"
 for _path in $search_coverage_in; do
   say "    ${g}+${x} $_path"
 done
