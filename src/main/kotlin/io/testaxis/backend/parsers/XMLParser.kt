@@ -29,11 +29,11 @@ abstract class XMLParser<R> {
     private fun createDocumentBuilder() = DocumentBuilderFactory.newInstance()
         .apply {
             isValidating = false
-            isNamespaceAware = true;
-            setFeature("http://xml.org/sax/features/namespaces", false);
-            setFeature("http://xml.org/sax/features/validation", false);
-            setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false);
-            setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+            isNamespaceAware = true
+            setFeature("http://xml.org/sax/features/namespaces", false)
+            setFeature("http://xml.org/sax/features/validation", false)
+            setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false)
+            setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
         }
         .newDocumentBuilder()
 

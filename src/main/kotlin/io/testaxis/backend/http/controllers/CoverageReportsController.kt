@@ -40,7 +40,7 @@ class CoverageReportsController(
                                 TestAxis -- Coverage Upload
                                 -------------------------------------------
                                 ${files?.count() ?: 0} files uploaded.
-                                Found the reported coverage of ${coveredTests} tests.
+                                Found the reported coverage of $coveredTests tests.
                                 -------------------------------------------
                                 Build
                                 ${build.id}

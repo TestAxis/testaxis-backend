@@ -127,12 +127,13 @@ class JacocoXMLParserTest {
 
     @Test
     fun `It does not parse a Jacoco coverage report with multiple _sessioninfo_ elements`() {
-        val document = """
-            <report name="example">
-                <sessioninfo id="com.example.CalculatorTest##testAddsNumbers" start="1605719602562" dump="1605719602565"/>
-                <sessioninfo id="com.example.OtherTest##testAddsNumbers" start="1605719602562" dump="1605719602565"/>
-            </report>
-        """.trimIndent()
+        val document =
+            """
+                <report name="example">
+                    <sessioninfo id="com.example.CalculatorTest##testAddsNumbers" start="1605719602562" dump="1605719602565"/>
+                    <sessioninfo id="com.example.OtherTest##testAddsNumbers" start="1605719602562" dump="1605719602565"/>
+                </report>
+            """.trimIndent()
 
         expectCatching { JacocoXMLParser()(listOf(document.byteInputStream())) }
             .isFailure()
@@ -141,11 +142,12 @@ class JacocoXMLParserTest {
 
     @Test
     fun `It does not parse a Jacoco coverage report with an invalid _sessioninfo_ id separator`() {
-        val document = """
-            <report name="example">
-                <sessioninfo id="com.example.CalculatorTest[]testAddsNumbers" start="1605719602562" dump="1605719602565"/>
-            </report>
-        """.trimIndent()
+        val document =
+            """
+                <report name="example">
+                    <sessioninfo id="com.example.CalculatorTest[]testAddsNumbers" start="1605719602562" dump="1605719602565"/>
+                </report>
+            """.trimIndent()
 
         expectCatching { JacocoXMLParser()(listOf(document.byteInputStream())) }
             .isFailure()
@@ -154,11 +156,12 @@ class JacocoXMLParserTest {
 
     @Test
     fun `It does not parse a Jacoco coverage report with a missing _sessioninfo_ id method or class name`() {
-        val document = """
-            <report name="example">
-                <sessioninfo id="com.example.CalculatorTest" start="1605719602562" dump="1605719602565"/>
-            </report>
-        """.trimIndent()
+        val document =
+            """
+                <report name="example">
+                    <sessioninfo id="com.example.CalculatorTest" start="1605719602562" dump="1605719602565"/>
+                </report>
+            """.trimIndent()
 
         expectCatching { JacocoXMLParser()(listOf(document.byteInputStream())) }
             .isFailure()

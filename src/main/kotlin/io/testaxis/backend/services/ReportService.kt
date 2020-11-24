@@ -1,10 +1,10 @@
 package io.testaxis.backend.services
 
-import io.testaxis.backend.parsers.JUnitXMLParser
 import io.testaxis.backend.events.BuildWasCreatedEvent
 import io.testaxis.backend.models.Build
 import io.testaxis.backend.models.BuildStatus
 import io.testaxis.backend.models.TestCaseExecution
+import io.testaxis.backend.parsers.JUnitXMLParser
 import io.testaxis.backend.repositories.BuildRepository
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service

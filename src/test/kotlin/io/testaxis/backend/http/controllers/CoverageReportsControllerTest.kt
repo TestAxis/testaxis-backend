@@ -10,9 +10,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.http.MediaType
-import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.mock.web.MockMultipartFile
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.multipart
@@ -21,6 +19,7 @@ import strikt.api.expectThat
 import strikt.assertions.contains
 import strikt.assertions.containsKey
 import strikt.assertions.hasEntry
+import strikt.assertions.isEmpty
 import strikt.assertions.isNotEmpty
 import javax.persistence.EntityManager
 import javax.transaction.Transactional
@@ -35,9 +34,6 @@ class CoverageReportsControllerTest(
     @Autowired val testCaseExecutionRepository: TestCaseExecutionRepository,
     @Autowired val entityManager: EntityManager
 ) {
-    @SpyBean
-    lateinit var simpMessagingTemplate: SimpMessagingTemplate
-
     private val testReport =
         """
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -86,6 +82,23 @@ class CoverageReportsControllerTest(
     }
 
     @Test
+    fun `A user can upload a coverage report for non existing tests that will be gracefully skipped`() {
+        val testCaseExecution = fakeTestCaseExecution(name = "doesNotExist")
+
+        mockMvc.multipart("/reports/${testCaseExecution.build.id}/coverage") {
+            file(fakeReport())
+        }.andExpect {
+            status { isEqualTo(200) }
+        }
+
+        with(testCaseExecution) {
+            entityManager.refresh(this)
+
+            expectThat(coveredLines).isEmpty()
+        }
+    }
+
+    @Test
     fun `A user can upload a coverage report with coverage information where only covered lines are persisted`() {
         val testCaseExecution = fakeTestCaseExecution()
 
@@ -124,13 +137,14 @@ class CoverageReportsControllerTest(
     fun `A user cannot upload a coverage report with an invalid session id or other parser errors`() {
         val testCaseExecution = fakeTestCaseExecution()
 
-        val report = """
-            <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-            <!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.1//EN" "report.dtd">
-            <report name="example">
-                <sessioninfo id="INVALID" start="1605719602562" dump="1605719602565"/>
-            </report>
-        """.trimIndent()
+        val report =
+            """
+                <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                <!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.1//EN" "report.dtd">
+                <report name="example">
+                    <sessioninfo id="INVALID" start="1605719602562" dump="1605719602565"/>
+                </report>
+            """.trimIndent()
 
         mockMvc.multipart("/reports/${testCaseExecution.build.id}/coverage") {
             file(fakeReport(report = report))
@@ -142,7 +156,7 @@ class CoverageReportsControllerTest(
         }
     }
 
-    private fun fakeTestCaseExecution(): TestCaseExecution {
+    private fun fakeTestCaseExecution(name: String = "testAddsNumbers"): TestCaseExecution {
         val project = projectRepository.findBySlugOrCreate("company/project")
         val build = buildRepository.save(
             Build(branch = "new-feature", commit = "abc123", slug = "company/project", project = project)
@@ -152,7 +166,7 @@ class CoverageReportsControllerTest(
                 build = build,
                 testSuiteName = "com.example.CalculatorTest",
                 className = "com.example.CalculatorTest",
-                name = "testAddsNumbers",
+                name = name,
                 passed = true,
                 failureType = null,
                 failureMessage = null,
