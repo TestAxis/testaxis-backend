@@ -5,6 +5,7 @@ import io.testaxis.backend.models.TestCaseExecution
 import io.testaxis.backend.repositories.BuildRepository
 import io.testaxis.backend.repositories.ProjectRepository
 import io.testaxis.backend.repositories.TestCaseExecutionRepository
+import org.hamcrest.CoreMatchers.containsString
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -119,6 +120,28 @@ class CoverageReportsControllerTest(
         }
     }
 
+    @Test
+    fun `A user cannot upload a coverage report with an invalid session id or other parser errors`() {
+        val testCaseExecution = fakeTestCaseExecution()
+
+        val report = """
+            <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            <!DOCTYPE report PUBLIC "-//JACOCO//DTD Report 1.1//EN" "report.dtd">
+            <report name="example">
+                <sessioninfo id="INVALID" start="1605719602562" dump="1605719602565"/>
+            </report>
+        """.trimIndent()
+
+        mockMvc.multipart("/reports/${testCaseExecution.build.id}/coverage") {
+            file(fakeReport(report = report))
+        }.andExpect {
+            content {
+                status { isEqualTo(422) }
+                string(containsString("Failed"))
+            }
+        }
+    }
+
     private fun fakeTestCaseExecution(): TestCaseExecution {
         val project = projectRepository.findBySlugOrCreate("company/project")
         val build = buildRepository.save(
@@ -142,10 +165,11 @@ class CoverageReportsControllerTest(
         return testCaseExecution
     }
 
-    private fun fakeReport(mimeType: String = MediaType.TEXT_XML_VALUE) = MockMultipartFile(
-        "files",
-        "test_report.xml",
-        mimeType,
-        testReport.byteInputStream()
-    )
+    private fun fakeReport(mimeType: String = MediaType.TEXT_XML_VALUE, report: String = testReport) =
+        MockMultipartFile(
+            "files",
+            "test_report.xml",
+            mimeType,
+            report.byteInputStream()
+        )
 }

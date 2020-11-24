@@ -23,7 +23,8 @@ class TestCaseExecution(
     @Lob var failureMessage: String?,
     var failureType: String?,
     @Lob var failureContent: String?,
-    @Lob @Transient @Convert(converter = HashMapConverter::class) var coveredLines: MutableMap<String, List<Int>> = mutableMapOf(),
+    @Lob @Transient @Convert(converter = HashMapConverter::class)
+    var coveredLines: MutableMap<String, List<Int>> = mutableMapOf(),
     @CreatedDate var createdAt: Date = Date(),
     @Suppress("ForbiddenComment") // TODO: Fix @CreatedDate and @LastModifiedDate annotations
     @LastModifiedDate var updatedAt: Date = Date(),

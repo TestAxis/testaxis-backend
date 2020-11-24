@@ -5,7 +5,10 @@ import io.testaxis.backend.http.FilesHaveMaxSize
 import io.testaxis.backend.http.FilesHaveType
 import io.testaxis.backend.http.MustExist
 import io.testaxis.backend.models.Build
+import io.testaxis.backend.parsers.JacocoXMLParser
 import io.testaxis.backend.services.CoverageReportService
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.util.MimeTypeUtils
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PathVariable
@@ -26,19 +29,36 @@ class CoverageReportsController(
         @FilesHaveType(types = [MimeTypeUtils.APPLICATION_XML_VALUE, MimeTypeUtils.TEXT_XML_VALUE])
         @FilesHaveMaxSize(size = AppConfig.UPLOAD_LIMIT)
         files: Array<MultipartFile>?,
-    ): String =
-        // TODO: catch parser exceptions
-        coverageReportService.parseAndPersistCoverageReports(build, files?.map { it.inputStream } ?: emptyList())
-            .let { executions ->
+    ) =
+        try {
+            coverageReportService.parseAndPersistCoverageReports(build, files?.map { it.inputStream } ?: emptyList())
+                .let { tests ->
+                    ResponseEntity(
+                        tests.filter { it.coveredLines.isNotEmpty() }.count().let { coveredTests ->
+                            """
+                                -------------------------------------------
+                                TestAxis -- Coverage Upload
+                                -------------------------------------------
+                                ${files?.count() ?: 0} files uploaded.
+                                Found the reported coverage of ${coveredTests} tests.
+                                -------------------------------------------
+                                Build
+                                ${build.id}
+                            """.trimIndent()
+                        },
+                        HttpStatus.OK
+                    )
+                }
+        } catch (exception: JacocoXMLParser.JacocoXMLParserException) {
+            ResponseEntity(
                 """
-                -------------------------------------------
-                TestAxis -- Coverage Upload
-                -------------------------------------------
-                ${files?.count() ?: 0} files uploaded.
-                Found the reported coverage of ${executions.filter { it.coveredLines.isNotEmpty() }.count()} tests.
-                -------------------------------------------
-                Build
-                ${build.id}
-            """.trimIndent()
-            }
+                    -------------------------------------------
+                    TestAxis -- Coverage Upload Failed
+                    -------------------------------------------
+                    ${exception.message}
+                    -------------------------------------------
+                """.trimIndent(),
+                HttpStatus.UNPROCESSABLE_ENTITY
+            )
+        }
 }
