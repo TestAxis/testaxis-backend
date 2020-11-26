@@ -30,13 +30,15 @@ class ReportsController(val reportService: ReportService, val projectRepository:
     ) = reportService.parseAndPersistTestReports(
         request.toBuild(projectRepository.findBySlugOrCreate(request.slug)),
         files?.map { it.inputStream } ?: emptyList()
-    ).let { executions ->
+    ).let { build ->
         """
             -------------------------------------------
             TestAxis -- Upload Successful
             -------------------------------------------
-            Found the reported executions of ${executions.count()} tests.
+            Found the reported executions of ${build.testCaseExecutions.count()} tests.
             -------------------------------------------
+            Build
+            ${build.id}
         """.trimIndent()
     }
 }

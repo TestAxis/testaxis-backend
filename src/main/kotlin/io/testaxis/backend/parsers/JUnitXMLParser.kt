@@ -1,24 +1,11 @@
-package io.testaxis.backend.actions
+package io.testaxis.backend.parsers
 
 import org.springframework.stereotype.Component
+import org.w3c.dom.Document
 import org.w3c.dom.Element
-import java.io.InputStream
-import javax.xml.parsers.DocumentBuilderFactory
-
-/**
- * Finds all children that are [Element]s.
- */
-fun Element.getChildElementsByTagName(tagName: String) = getElementsByTagName(tagName).run {
-    (0..length).map { item(it) }.filterIsInstance<Element>()
-}
-
-/**
- * Finds the first child that is a [Element] and returns null otherwise.
- */
-fun Element.getChildElementByTagName(tagName: String) = getChildElementsByTagName(tagName).firstOrNull()
 
 @Component
-class ParseJUnitXML {
+class JUnitXMLParser : XMLParser<JUnitXMLParser.TestSuite>() {
 
     data class TestSuite(
         val name: String,
@@ -46,13 +33,8 @@ class ParseJUnitXML {
      * In case multiple documents are provided, a flattened collection will be returned where all the testsuites of all
      * the documents are at the same level.
      */
-    operator fun invoke(documents: List<InputStream>): List<TestSuite> = documents
-        .map { DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(it) }
-        .map {
-            it.documentElement.normalize()
-            parseTestSuites(it.documentElement)
-        }
-        .flatten()
+    override fun parseDocuments(documents: List<Document>) =
+        documents.map { parseTestSuites(it.documentElement) }.flatten()
 
     /**
      * Parses the <testsuites> root node.

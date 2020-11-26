@@ -1,10 +1,10 @@
 package io.testaxis.backend.services
 
-import io.testaxis.backend.actions.ParseJUnitXML
 import io.testaxis.backend.events.BuildWasCreatedEvent
 import io.testaxis.backend.models.Build
 import io.testaxis.backend.models.BuildStatus
 import io.testaxis.backend.models.TestCaseExecution
+import io.testaxis.backend.parsers.JUnitXMLParser
 import io.testaxis.backend.repositories.BuildRepository
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Service
@@ -14,10 +14,10 @@ import java.io.InputStream
 class ReportService(
     val applicationEventPublisher: ApplicationEventPublisher,
     val buildRepository: BuildRepository,
-    val parser: ParseJUnitXML
+    val parser: JUnitXMLParser
 ) {
     fun parseAndPersistTestReports(build: Build, reports: List<InputStream>) =
-        buildRepository.save(build).let { persistedBuild ->
+        buildRepository.save(build).also { persistedBuild ->
             parser(reports).flatMap { testSuite ->
                 testSuite.testCases.map {
                     TestCaseExecution(
@@ -32,14 +32,14 @@ class ReportService(
                         failureContent = it.failureContent,
                     )
                 }
-            }.also { executions ->
-                build.testCaseExecutions.addAll(executions)
+            }.let { executions ->
+                persistedBuild.testCaseExecutions.addAll(executions)
                 if (executions.any { !it.passed }) {
-                    build.status = BuildStatus.TESTS_FAILED
+                    persistedBuild.status = BuildStatus.TESTS_FAILED
                 }
-                buildRepository.save(build)
+                buildRepository.save(persistedBuild)
 
-                applicationEventPublisher.publishEvent(BuildWasCreatedEvent(this, build))
+                applicationEventPublisher.publishEvent(BuildWasCreatedEvent(this, persistedBuild))
             }
         }
 }

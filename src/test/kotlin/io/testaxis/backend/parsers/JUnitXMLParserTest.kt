@@ -1,4 +1,4 @@
-package io.testaxis.backend.actions
+package io.testaxis.backend.parsers
 
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -11,7 +11,7 @@ import strikt.assertions.isFalse
 import strikt.assertions.isNull
 import strikt.assertions.isTrue
 
-class ParseJUnitXMLTest {
+class JUnitXMLParserTest {
     private val testReport =
         """
             <?xml version="1.0" encoding="UTF-8"?>
@@ -30,7 +30,7 @@ class ParseJUnitXMLTest {
 
     @Test
     fun `It parses a single XML test report with a _testsuite_ root element`() {
-        val testSuites = ParseJUnitXML()(listOf(testReport.byteInputStream()))
+        val testSuites = JUnitXMLParser()(listOf(testReport.byteInputStream()))
 
         expectThat(testSuites) hasSize 1
         expectThat(testSuites[0].name) isEqualTo "io.testaxis.backend.http.controllers.ProjectControllerTest"
@@ -38,7 +38,7 @@ class ParseJUnitXMLTest {
 
     @Test
     fun `It parses multiple XML test report with a _testsuite_ root element`() {
-        val testSuites = ParseJUnitXML()(listOf(testReport.byteInputStream(), testReport.byteInputStream()))
+        val testSuites = JUnitXMLParser()(listOf(testReport.byteInputStream(), testReport.byteInputStream()))
 
         expectThat(testSuites) hasSize 2
         expectThat(testSuites[0].name) isEqualTo "io.testaxis.backend.http.controllers.ProjectControllerTest"
@@ -57,7 +57,7 @@ class ParseJUnitXMLTest {
 
     @Test
     fun `It parses a _testsuite_ element`() {
-        val testSuites = ParseJUnitXML()(listOf(testReport.byteInputStream()))
+        val testSuites = JUnitXMLParser()(listOf(testReport.byteInputStream()))
 
         with(testSuites[0]) {
             expectThat(name) isEqualTo "io.testaxis.backend.http.controllers.ProjectControllerTest"
@@ -71,14 +71,14 @@ class ParseJUnitXMLTest {
 
     @Test
     fun `It finds and parses the _testcase_ elements`() {
-        val testSuites = ParseJUnitXML()(listOf(testReport.byteInputStream()))
+        val testSuites = JUnitXMLParser()(listOf(testReport.byteInputStream()))
 
         expectThat(testSuites[0].testCases) hasSize 2
     }
 
     @Test
     fun `It parses failing _testcase_ elements`() {
-        val testSuites = ParseJUnitXML()(listOf(testReport.byteInputStream()))
+        val testSuites = JUnitXMLParser()(listOf(testReport.byteInputStream()))
 
         with(testSuites[0].testCases[0]) {
             expectThat(name) isEqualTo "A user can retrieve no projects at all()"
@@ -96,7 +96,7 @@ class ParseJUnitXMLTest {
 
     @Test
     fun `It parses passing _testcase_ elements`() {
-        val testSuites = ParseJUnitXML()(listOf(testReport.byteInputStream()))
+        val testSuites = JUnitXMLParser()(listOf(testReport.byteInputStream()))
 
         with(testSuites[0].testCases[1]) {
             expectThat(name) isEqualTo "A user can retrieve all projects()"

@@ -21,5 +21,6 @@ class TestCaseExecutionTransformer : Transformer() {
         "failure_message" - failureMessage
         "failure_type" - failureType
         "failure_content" - failureContent
+        "covered_lines" - coveredLines
     }
 }
