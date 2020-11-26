@@ -21,8 +21,7 @@ abstract class AbstractJpaPersistable<T : Serializable> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    final var id: T? = null
-        private set
+    var id: T? = null
 
     override fun equals(other: Any?): Boolean {
         other ?: return false
