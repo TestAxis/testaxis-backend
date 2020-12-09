@@ -34,7 +34,7 @@ class JacocoXMLParser : XMLParser<JacocoXMLParser.CoverageReportForSingleMethod>
         val coveredBranches: Int,
         val missedBranches: Int
     ) {
-        fun isCovered() = coveredInstructions > 0
+        fun isCovered() = coveredInstructions >= 0
     }
 
     /**
