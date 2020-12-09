@@ -807,18 +807,18 @@ else
   say "${e}==>${x} Uploading coverage reports to TestAxis"
 
   # Construct file upload arguments
-  curl_files=""
+  curl_files=()
   if [ "$files" != "" ]; then
     # shellcheck disable=SC2089
     while IFS='' read -r file; do
-      curl_files="$curl_files -F files=@$file"
+      curl_files+=(-F "files=@$file")
     done <<<"$(echo -e "$files")"
   fi
 
   # shellcheck disable=SC2086,2090
   res=$(curl -X POST $curl_s $curlargs $cacert \
     --retry 5 --retry-delay 2 --connect-timeout 2 \
-    $curl_files \
+    "${curl_files[@]}" \
     --write-out "\nHTTP %{http_code}" \
     -o - \
     "$url?$query&attempt=$i" || echo 'HTTP 999')
