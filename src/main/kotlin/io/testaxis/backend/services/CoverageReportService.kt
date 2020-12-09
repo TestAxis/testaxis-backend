@@ -7,8 +7,10 @@ import io.testaxis.backend.parsers.JacocoXMLParser
 import io.testaxis.backend.repositories.TestCaseExecutionRepository
 import org.springframework.stereotype.Service
 import java.io.InputStream
+import javax.transaction.Transactional
 
 @Service
+@Transactional
 class CoverageReportService(
     val testCaseExecutionRepository: TestCaseExecutionRepository,
     val parser: JacocoXMLParser
