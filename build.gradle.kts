@@ -17,6 +17,9 @@ plugins {
 
     id("io.gitlab.arturbosch.detekt") version "1.14.1"
     id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
+
+    jacoco
+    id("io.testaxis.coveragepertest") version "1.0.0"
 }
 
 group = "io.testaxis"
@@ -53,7 +56,16 @@ allOpen {
     annotation("javax.persistence.MappedSuperclass")
 }
 
+jacoco {
+    toolVersion = "0.8.6"
+}
+
+tasks.coveragePerTestReport {
+    dependsOn(tasks.test)
+}
+
 tasks.withType<Test> {
+    systemProperty("junit.jupiter.extensions.autodetection.enabled", "true")
     useJUnitPlatform()
 }
 
