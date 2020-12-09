@@ -60,10 +60,6 @@ jacoco {
     toolVersion = "0.8.6"
 }
 
-tasks.coveragePerTestReport {
-    dependsOn(tasks.test)
-}
-
 tasks.withType<Test> {
     systemProperty("junit.jupiter.extensions.autodetection.enabled", "true")
     useJUnitPlatform()
