@@ -1,0 +1,36 @@
+spring:
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:postgresql:testaxis
+
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            clientId: d3e47fc2ddd966fa4352
+            clientSecret: 3bc0f6b8332f93076354c2a5bada2f5a05aea60d
+            redirectUri: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope:
+              - user:email
+              - read:user
+
+app:
+  auth:
+    tokenSecret: u0fNVcI5VfhURTascNxULCBBcw4ac8+8pdKQPEvkkmOqbyKj05PRy+cqMnqGDdHwanBd1/+jk4qBBuZ3F+cGUQ== # For development, production should override
+    tokenExpirationMsec: 864000000 # ?
+  oauth2:
+    # After successfully authenticating with the OAuth2 Provider,
+    # we'll be generating an auth token for the user and sending the token to the
+    # redirectUri mentioned by the frontend client in the /oauth2/authorize request.
+    # We're not using cookies because they won't work well in mobile clients.
+    authorizedRedirectUris:
+      - http://localhost:3000/oauth2/redirect
+      - http://localhost:4000/user/me
+
+server:
+  port: 4000
