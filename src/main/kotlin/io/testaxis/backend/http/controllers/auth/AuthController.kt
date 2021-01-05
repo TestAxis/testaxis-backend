@@ -25,7 +25,7 @@ import javax.validation.constraints.NotBlank
 
 @RestController
 @Validated
-@RequestMapping("/auth")
+@RequestMapping("/api/v1/auth")
 class AuthController(
     val authenticationManager: AuthenticationManager,
     val userRepository: UserRepository,
@@ -33,23 +33,16 @@ class AuthController(
     val tokenProvider: TokenProvider
 ) {
     @PostMapping("/login")
-    fun authenticateUser(@RequestBody @Valid loginRequest: LoginRequest): AuthResponse {
-        val authentication = authenticationManager.authenticate(
-            UsernamePasswordAuthenticationToken(loginRequest.email, loginRequest.password)
-        )
-
-        SecurityContextHolder.getContext().authentication = authentication
-
-        return AuthResponse(tokenProvider.createToken(authentication))
-    }
+    fun authenticateUser(@RequestBody @Valid loginRequest: LoginRequest) =
+        AuthResponse(login(loginRequest.email, loginRequest.password))
 
     @PostMapping("/register")
-    fun registerUser(@RequestBody @Valid signUpRequest: SignUpRequest): User {
+    fun registerUser(@RequestBody @Valid signUpRequest: SignUpRequest): AuthResponse {
         if (userRepository.existsByEmail(signUpRequest.email)) {
             throw CustomValidationException("email", "Email address already in use.")
         }
 
-        return userRepository.save(
+        userRepository.save(
             User(
                 name = signUpRequest.name,
                 email = signUpRequest.email,
@@ -57,10 +50,22 @@ class AuthController(
                 provider = AuthProvider.Local,
             )
         )
+
+        return AuthResponse(login(signUpRequest.email, signUpRequest.password))
     }
 
     @GetMapping("/token")
     fun displayToken(@RequestParam token: String) = ModelAndView("token", mapOf("token" to token))
+
+    private fun login(email: String, password: String): String {
+        val authentication = authenticationManager.authenticate(
+            UsernamePasswordAuthenticationToken(email, password)
+        )
+
+        SecurityContextHolder.getContext().authentication = authentication
+
+        return tokenProvider.createToken(authentication)
+    }
 }
 
 data class LoginRequest(
