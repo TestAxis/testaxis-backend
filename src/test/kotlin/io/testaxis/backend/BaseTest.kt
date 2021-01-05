@@ -53,5 +53,5 @@ abstract class BaseTest {
         header("Authorization", "Bearer $token")
     }
 
-    protected fun refresh(entity: Any) = entityManager.refresh(entity)
+    protected fun refresh(vararg entities: Any) = entities.forEach { entityManager.refresh(it) }
 }

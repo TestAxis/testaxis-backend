@@ -14,7 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
-import javax.persistence.EntityManager
 import javax.transaction.Transactional
 
 @SpringBootTest
@@ -47,11 +46,11 @@ class BuildsControllerTest(
                 ),
             )
         ).toList()
-        refresh(project)
+        refresh(user, project)
 
         mockMvc.get(apiRoute("/projects/${project.id}/builds")) {
             accept = MediaType.APPLICATION_JSON
-            asFakeUser()
+            asFakeUser(user)
         }.andExpect {
             status { isOk }
 
@@ -80,16 +79,34 @@ class BuildsControllerTest(
         buildRepository.save(
             Build(project = invalidProject, branch = "invalid-feature", commit = "a212a3", slug = "org/other-project")
         )
-        refresh(validProject)
+        refresh(user, validProject)
 
         mockMvc.get(apiRoute("/projects/${validProject.id}/builds")) {
             accept = MediaType.APPLICATION_JSON
-            asFakeUser()
+            asFakeUser(user)
         }.andExpect {
             status { isOk }
 
             jsonPath("$[0].id") { value(validProjectBuild.id!!) }
             jsonPath("$[1].id") { doesNotExist() }
+        }
+    }
+
+    @Test
+    fun `A user can only retrieve builds they have access to`() {
+        val user = fakeUser()
+        val otherUser = fakeUser()
+        val validProject = projectRepository.save(Project(name = "project", slug = "org/project", user = otherUser))
+        buildRepository.save(
+            Build(project = validProject, branch = "new-feature", commit = "a212a3", slug = "org/project")
+        )
+        refresh(user, validProject)
+
+        mockMvc.get(apiRoute("/projects/${validProject.id}/builds")) {
+            accept = MediaType.APPLICATION_JSON
+            asFakeUser(user)
+        }.andExpect {
+            status { isNotFound }
         }
     }
 }
