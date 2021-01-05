@@ -31,7 +31,6 @@ import strikt.assertions.isFalse
 import strikt.assertions.isNotNull
 import strikt.assertions.isNull
 import strikt.assertions.isTrue
-import javax.persistence.EntityManager
 import javax.transaction.Transactional
 
 @SpringBootTest
@@ -41,7 +40,6 @@ class ReportsControllerTest(
     @Autowired val mockMvc: MockMvc,
     @Autowired val buildRepository: BuildRepository,
     @Autowired val projectRepository: ProjectRepository,
-    @Autowired val entityManager: EntityManager
 ) : BaseTest() {
     @SpyBean
     lateinit var simpMessagingTemplate: SimpMessagingTemplate
@@ -77,7 +75,7 @@ class ReportsControllerTest(
         val createdProject = projectRepository.findBySlug("company/project")
         expectThat(createdProject).isNotNull()
         with(buildRepository.findByCommit("abc123")) {
-            entityManager.refresh(this)
+            refresh(this)
 
             expectThat(project).equals(createdProject!!)
         }
@@ -85,24 +83,45 @@ class ReportsControllerTest(
 
     @Test
     fun `A user can upload a report for an existing project which does not get re-created`() {
-        val fakeProject = projectRepository.findBySlugOrCreate("company/project")
+        val fakeUser = fakeUser()
+        val fakeProject = projectRepository.findBySlugOrCreate("company/project", fakeUser)
 
         mockMvc.multipart("/reports") {
             file(fakeTestReport())
             param("commit", "abc123")
             param("branch", "new-feature")
             param("slug", "company/project")
-            asFakeUser()
+            asFakeUser(fakeUser)
         }.andExpect {
             status { isEqualTo(200) }
         }
 
         expectThat(projectRepository.count()).isEqualTo(1)
         with(buildRepository.findByCommit("abc123")) {
-            entityManager.refresh(this)
+            refresh(this)
 
             expectThat(project).equals(fakeProject)
         }
+    }
+
+    @Test
+    fun `A user cannot upload a report for an existing project they do not have access to`() {
+        val fakeUser = fakeUser()
+        projectRepository.findBySlugOrCreate("company/project", fakeUser)
+
+        val newUser = fakeUser()
+
+        mockMvc.multipart("/reports") {
+            file(fakeTestReport())
+            param("commit", "abc123")
+            param("branch", "new-feature")
+            param("slug", "company/project")
+            asFakeUser(newUser)
+        }.andExpect {
+            status { isEqualTo(200) }
+        }
+
+        expectThat(projectRepository.count()).isEqualTo(2)
     }
 
     @Test
@@ -118,7 +137,7 @@ class ReportsControllerTest(
         }
 
         with(buildRepository.findByCommit("abc123")) {
-            entityManager.refresh(this) // TODO: Check if this refresh method is the correct approach
+            refresh(this) // TODO: Check if this refresh method is the correct approach
 
             expectThat(testCaseExecutions) hasSize 2
 
@@ -148,7 +167,7 @@ class ReportsControllerTest(
         }
 
         with(buildRepository.findByCommit("abc123")) {
-            entityManager.refresh(this) // TODO: Check if this refresh method is the correct approach
+            refresh(this) // TODO: Check if this refresh method is the correct approach
 
             expectThat(testCaseExecutions) hasSize 2
 

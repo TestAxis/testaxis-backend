@@ -21,11 +21,13 @@ class UserControllerTest(
 ) : BaseTest() {
     @Test
     fun `A user can retrieve its details`() {
-        val user = User(
-            name = "Casper Boone",
-            email = "testaxis@casperboone.nl",
-            provider = AuthProvider.Local,
-            imageUrl = "http://images.com/image.png"
+        val user = fakeUser(
+            User(
+                name = "Casper Boone",
+                email = "testaxis@casperboone.nl",
+                provider = AuthProvider.Local,
+                imageUrl = "http://images.com/image.png"
+            )
         )
 
         mockMvc.get(apiRoute("/user/me")) {

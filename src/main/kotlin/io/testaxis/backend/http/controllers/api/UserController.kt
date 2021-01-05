@@ -2,7 +2,6 @@ package io.testaxis.backend.http.controllers.api
 
 // Based on https://www.callicoder.com/spring-boot-security-oauth2-social-login-part-1
 
-import io.testaxis.backend.exceptions.ResourceNotFoundException
 import io.testaxis.backend.http.transformers.UserTransformer
 import io.testaxis.backend.http.transformers.dsl.KeyValueData
 import io.testaxis.backend.repositories.UserRepository
@@ -19,7 +18,6 @@ class UserController(val userRepository: UserRepository, val transformer: UserTr
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('USER')")
-    fun show(@CurrentUser userPrincipal: UserPrincipal): KeyValueData = transformer.details(
-        userRepository.findById(userPrincipal.id).orElseThrow { ResourceNotFoundException() }
-    )
+    fun show(@CurrentUser userPrincipal: UserPrincipal): KeyValueData =
+        transformer.details(userPrincipal.user(userRepository))
 }

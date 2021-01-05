@@ -7,6 +7,9 @@ import io.testaxis.backend.models.Build
 import io.testaxis.backend.models.BuildStatus
 import io.testaxis.backend.models.Project
 import io.testaxis.backend.repositories.ProjectRepository
+import io.testaxis.backend.repositories.UserRepository
+import io.testaxis.backend.security.CurrentUser
+import io.testaxis.backend.security.UserPrincipal
 import io.testaxis.backend.services.ReportService
 import org.springframework.util.MimeTypeUtils
 import org.springframework.validation.annotation.Validated
@@ -19,16 +22,21 @@ import javax.validation.constraints.NotBlank
 
 @RestController
 @Validated
-class ReportsController(val reportService: ReportService, val projectRepository: ProjectRepository) {
+class ReportsController(
+    val reportService: ReportService,
+    val projectRepository: ProjectRepository,
+    val userRepository: UserRepository
+) {
     @PostMapping("reports")
     fun store(
+        @CurrentUser userPrincipal: UserPrincipal,
         @RequestParam("files", required = false)
         @FilesHaveType(types = [MimeTypeUtils.APPLICATION_XML_VALUE, MimeTypeUtils.TEXT_XML_VALUE])
         @FilesHaveMaxSize(size = AppConfig.UPLOAD_LIMIT)
         files: Array<MultipartFile>?,
         @Valid request: UploadReportRequest
     ) = reportService.parseAndPersistTestReports(
-        request.toBuild(projectRepository.findBySlugOrCreate(request.slug)),
+        request.toBuild(projectRepository.findBySlugOrCreate(request.slug, userPrincipal.user(userRepository))),
         files?.map { it.inputStream } ?: emptyList()
     ).let { build ->
         """

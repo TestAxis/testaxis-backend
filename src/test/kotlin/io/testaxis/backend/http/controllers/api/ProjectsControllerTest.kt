@@ -22,16 +22,20 @@ class ProjectsControllerTest(
 ) : BaseTest() {
     @Test
     fun `A user can retrieve all projects`() {
+        val user = fakeUser()
+
         val projects = projectRepository.saveAll(
             listOf(
-                Project(name = "example-project-a", slug = "org/example-project-a"),
-                Project(name = "example-project-b", slug = "org/example-project-b")
+                Project(name = "example-project-a", slug = "org/example-project-a", user = user),
+                Project(name = "example-project-b", slug = "org/example-project-b", user = user)
             )
         ).toList()
 
+        refresh(user)
+
         mockMvc.get(apiRoute("/projects")) {
             accept = MediaType.APPLICATION_JSON
-            asFakeUser()
+            asFakeUser(user)
         }.andExpect {
             status { isOk }
 
@@ -46,18 +50,68 @@ class ProjectsControllerTest(
     }
 
     @Test
-    fun `A user can retrieve a single project project`() {
-        val project = projectRepository.save(Project(name = "example-project-a", slug = "org/example-project-a"))
+    fun `A user cannot retrieve project they do not have access to`() {
+        val user = fakeUser()
+        val otherUser = fakeUser()
+
+        val projects = projectRepository.saveAll(
+            listOf(
+                Project(name = "example-project-a", slug = "org/example-project-a", user = otherUser),
+                Project(name = "example-project-b", slug = "org/example-project-b", user = user)
+            )
+        ).toList()
+
+        refresh(user)
+
+        mockMvc.get(apiRoute("/projects")) {
+            accept = MediaType.APPLICATION_JSON
+            asFakeUser(user)
+        }.andExpect {
+            status { isOk }
+
+            jsonPath("$[0].id") { value(projects[1].id!!) }
+            jsonPath("$[0].name") { value("example-project-b") }
+            jsonPath("$[0].slug") { value("org/example-project-b") }
+
+            jsonPath("$[1]") { doesNotExist() }
+        }
+    }
+
+    @Test
+    fun `A user can retrieve a single project`() {
+        val user = fakeUser()
+        val project =
+            projectRepository.save(Project(name = "example-project-a", slug = "org/example-project-a", user = user))
+
+        refresh(user)
 
         mockMvc.get(apiRoute("/projects/${project.id}")) {
             accept = MediaType.APPLICATION_JSON
-            asFakeUser()
+            asFakeUser(user)
         }.andExpect {
             status { isOk }
 
             jsonPath("$.id") { value(project.id!!) }
             jsonPath("$.name") { value("example-project-a") }
             jsonPath("$.slug") { value("org/example-project-a") }
+        }
+    }
+
+    @Test
+    fun `A user cannot retrieve a single project they do not have access to`() {
+        val user = fakeUser()
+        val otherUser = fakeUser()
+        val project = projectRepository.save(
+            Project(name = "example-project-a", slug = "org/example-project-a", user = otherUser)
+        )
+
+        refresh(user)
+
+        mockMvc.get(apiRoute("/projects/${project.id}")) {
+            accept = MediaType.APPLICATION_JSON
+            asFakeUser(user)
+        }.andExpect {
+            status { isNotFound }
         }
     }
 }

@@ -3,6 +3,7 @@ package io.testaxis.backend.http.controllers
 import io.testaxis.backend.BaseTest
 import io.testaxis.backend.models.Build
 import io.testaxis.backend.models.TestCaseExecution
+import io.testaxis.backend.models.User
 import io.testaxis.backend.repositories.BuildRepository
 import io.testaxis.backend.repositories.ProjectRepository
 import io.testaxis.backend.repositories.TestCaseExecutionRepository
@@ -22,7 +23,6 @@ import strikt.assertions.containsKey
 import strikt.assertions.hasEntry
 import strikt.assertions.isEmpty
 import strikt.assertions.isNotEmpty
-import javax.persistence.EntityManager
 import javax.transaction.Transactional
 
 @SpringBootTest
@@ -33,8 +33,9 @@ class CoverageReportsControllerTest(
     @Autowired val buildRepository: BuildRepository,
     @Autowired val projectRepository: ProjectRepository,
     @Autowired val testCaseExecutionRepository: TestCaseExecutionRepository,
-    @Autowired val entityManager: EntityManager
 ) : BaseTest() {
+    private lateinit var user: User
+
     private val testReport =
         """
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -71,7 +72,7 @@ class CoverageReportsControllerTest(
 
         mockMvc.multipart("/reports/${testCaseExecution.build.id}/coverage") {
             file(fakeReport())
-            asFakeUser()
+            asFakeUser(user)
         }.andExpect {
             status { isEqualTo(200) }
         }
@@ -85,7 +86,7 @@ class CoverageReportsControllerTest(
 
         mockMvc.multipart("/reports/${testCaseExecution.build.id}/coverage") {
             file(fakeReport())
-            asFakeUser()
+            asFakeUser(user)
         }.andExpect {
             status { isEqualTo(200) }
         }
@@ -99,7 +100,7 @@ class CoverageReportsControllerTest(
 
         mockMvc.multipart("/reports/${testCaseExecution.build.id}/coverage") {
             file(fakeReport())
-            asFakeUser()
+            asFakeUser(user)
         }.andExpect {
             status { isEqualTo(200) }
         }
@@ -113,7 +114,7 @@ class CoverageReportsControllerTest(
 
         mockMvc.multipart("/reports/${testCaseExecution.build.id}/coverage") {
             file(fakeReport())
-            asFakeUser()
+            asFakeUser(user)
         }.andExpect {
             status { isEqualTo(200) }
         }
@@ -140,7 +141,7 @@ class CoverageReportsControllerTest(
 
         mockMvc.multipart("/reports/${testCaseExecution.build.id}/coverage") {
             file(fakeReport(report = report))
-            asFakeUser()
+            asFakeUser(user)
         }.andExpect {
             content {
                 status { isEqualTo(422) }
@@ -150,7 +151,8 @@ class CoverageReportsControllerTest(
     }
 
     private fun fakeTestCaseExecution(name: String = "testAddsNumbers()"): TestCaseExecution {
-        val project = projectRepository.findBySlugOrCreate("company/project")
+        user = fakeUser()
+        val project = projectRepository.findBySlugOrCreate("company/project", user)
         val build = buildRepository.save(
             Build(branch = "new-feature", commit = "abc123", slug = "company/project", project = project)
         )
@@ -167,7 +169,7 @@ class CoverageReportsControllerTest(
                 time = 0.82
             )
         )
-        entityManager.refresh(build)
+        refresh(build)
 
         return testCaseExecution
     }

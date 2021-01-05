@@ -1,6 +1,8 @@
 package io.testaxis.backend.security
 
+import io.testaxis.backend.exceptions.ResourceNotFoundException
 import io.testaxis.backend.models.User
+import io.testaxis.backend.repositories.UserRepository
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -32,6 +34,9 @@ class UserPrincipal(
     override fun getAttributes() = attributes
 
     override fun getName() = id.toString()
+
+    fun user(userRepository: UserRepository): User =
+        userRepository.findById(id).orElseThrow { ResourceNotFoundException() }
 
     companion object {
         fun create(user: User) = UserPrincipal(
