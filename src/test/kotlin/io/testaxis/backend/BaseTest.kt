@@ -11,6 +11,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.test.web.servlet.MockHttpServletRequestDsl
+import javax.persistence.EntityManager
 
 @SpringBootTest
 abstract class BaseTest {
@@ -26,16 +27,21 @@ abstract class BaseTest {
     @Autowired
     lateinit var tokenProvider: TokenProvider
 
-    protected fun MockHttpServletRequestDsl.asFakeUser(
+    @Autowired
+    lateinit var entityManager: EntityManager
+
+    protected fun fakeUser(
         user: User = User(
             name = "Fake User",
-            email = "fake@user.com",
+            email = "${randomString()}@user.com",
             provider = AuthProvider.Local
         )
-    ) {
+    ): User {
         user.password = passwordEncoder.encode("fake-password")
-        userRepository.save(user)
+        return userRepository.save(user)
+    }
 
+    protected fun MockHttpServletRequestDsl.asFakeUser(user: User = fakeUser()) {
         val authentication = authenticationManager.authenticate(
             UsernamePasswordAuthenticationToken(user.email, "fake-password")
         )
@@ -46,4 +52,6 @@ abstract class BaseTest {
 
         header("Authorization", "Bearer $token")
     }
+
+    protected fun refresh(entity: Any) = entityManager.refresh(entity)
 }

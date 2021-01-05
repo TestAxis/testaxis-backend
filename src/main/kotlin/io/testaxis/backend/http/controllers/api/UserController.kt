@@ -19,7 +19,6 @@ class UserController(val userRepository: UserRepository, val transformer: UserTr
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('USER')")
-    fun show(@CurrentUser userPrincipal: UserPrincipal): KeyValueData = transformer.details(
-        userRepository.findById(userPrincipal.id).orElseThrow { ResourceNotFoundException() }
-    )
+    fun show(@CurrentUser userPrincipal: UserPrincipal): KeyValueData =
+        transformer.details(userPrincipal.user(userRepository))
 }

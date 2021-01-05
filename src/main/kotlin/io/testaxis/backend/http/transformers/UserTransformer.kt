@@ -5,7 +5,7 @@ import io.testaxis.backend.models.User
 import org.springframework.stereotype.Component
 
 @Component
-class UserTransformer : Transformer() {
+class UserTransformer(val projectTransformer: ProjectTransformer) : Transformer() {
     fun details(user: User) = transform(user) {
         "id" - id
         "name" - name
@@ -13,5 +13,6 @@ class UserTransformer : Transformer() {
         "image_url" - imageUrl
         "provider" - provider
         "provider_id" - providerId
+        "projects" - projectTransformer.transform(projects, projectTransformer::summary)
     }
 }

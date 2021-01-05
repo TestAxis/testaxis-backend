@@ -41,7 +41,6 @@ class ReportsControllerTest(
     @Autowired val mockMvc: MockMvc,
     @Autowired val buildRepository: BuildRepository,
     @Autowired val projectRepository: ProjectRepository,
-    @Autowired val entityManager: EntityManager
 ) : BaseTest() {
     @SpyBean
     lateinit var simpMessagingTemplate: SimpMessagingTemplate
@@ -77,7 +76,7 @@ class ReportsControllerTest(
         val createdProject = projectRepository.findBySlug("company/project")
         expectThat(createdProject).isNotNull()
         with(buildRepository.findByCommit("abc123")) {
-            entityManager.refresh(this)
+            refresh(this)
 
             expectThat(project).equals(createdProject!!)
         }
@@ -99,7 +98,7 @@ class ReportsControllerTest(
 
         expectThat(projectRepository.count()).isEqualTo(1)
         with(buildRepository.findByCommit("abc123")) {
-            entityManager.refresh(this)
+            refresh(this)
 
             expectThat(project).equals(fakeProject)
         }
@@ -118,7 +117,7 @@ class ReportsControllerTest(
         }
 
         with(buildRepository.findByCommit("abc123")) {
-            entityManager.refresh(this) // TODO: Check if this refresh method is the correct approach
+            refresh(this) // TODO: Check if this refresh method is the correct approach
 
             expectThat(testCaseExecutions) hasSize 2
 
@@ -148,7 +147,7 @@ class ReportsControllerTest(
         }
 
         with(buildRepository.findByCommit("abc123")) {
-            entityManager.refresh(this) // TODO: Check if this refresh method is the correct approach
+            refresh(this) // TODO: Check if this refresh method is the correct approach
 
             expectThat(testCaseExecutions) hasSize 2
 

@@ -24,18 +24,30 @@ class BuildsControllerTest(
     @Autowired val mockMvc: MockMvc,
     @Autowired val buildRepository: BuildRepository,
     @Autowired val projectRepository: ProjectRepository,
-    @Autowired val entityManager: EntityManager
 ) : BaseTest() {
     @Test
     fun `A user can retrieve all builds for a given project`() {
-        val project = projectRepository.save(Project(name = "project", slug = "org/project"))
+        val user = fakeUser()
+        val project = projectRepository.save(Project(name = "project", slug = "org/project", user = user))
         val builds = buildRepository.saveAll(
             listOf(
-                Build(project = project, status = BuildStatus.SUCCESS, branch = "new-feature", commit = "a212a3", slug = "org/project"),
-                Build(project = project, status = BuildStatus.TESTS_FAILED, branch = "fix-bug", commit = "b72a73", slug = "org/project"),
+                Build(
+                    project = project,
+                    status = BuildStatus.SUCCESS,
+                    branch = "new-feature",
+                    commit = "a212a3",
+                    slug = "org/project"
+                ),
+                Build(
+                    project = project,
+                    status = BuildStatus.TESTS_FAILED,
+                    branch = "fix-bug",
+                    commit = "b72a73",
+                    slug = "org/project"
+                ),
             )
         ).toList()
-        entityManager.refresh(project)
+        refresh(project)
 
         mockMvc.get(apiRoute("/projects/${project.id}/builds")) {
             accept = MediaType.APPLICATION_JSON
@@ -59,15 +71,16 @@ class BuildsControllerTest(
 
     @Test
     fun `A user can only retrieve builds for a specific project`() {
-        val validProject = projectRepository.save(Project(name = "project", slug = "org/project"))
+        val user = fakeUser()
+        val validProject = projectRepository.save(Project(name = "project", slug = "org/project", user = user))
         val validProjectBuild = buildRepository.save(
             Build(project = validProject, branch = "new-feature", commit = "a212a3", slug = "org/project")
         )
-        val invalidProject = projectRepository.save(Project(name = "project", slug = "org/other-project"))
+        val invalidProject = projectRepository.save(Project(name = "project", slug = "org/other-project", user = user))
         buildRepository.save(
             Build(project = invalidProject, branch = "invalid-feature", commit = "a212a3", slug = "org/other-project")
         )
-        entityManager.refresh(validProject)
+        refresh(validProject)
 
         mockMvc.get(apiRoute("/projects/${validProject.id}/builds")) {
             accept = MediaType.APPLICATION_JSON

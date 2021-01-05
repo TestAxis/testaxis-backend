@@ -33,7 +33,6 @@ class CoverageReportsControllerTest(
     @Autowired val buildRepository: BuildRepository,
     @Autowired val projectRepository: ProjectRepository,
     @Autowired val testCaseExecutionRepository: TestCaseExecutionRepository,
-    @Autowired val entityManager: EntityManager
 ) : BaseTest() {
     private val testReport =
         """
@@ -167,7 +166,7 @@ class CoverageReportsControllerTest(
                 time = 0.82
             )
         )
-        entityManager.refresh(build)
+        refresh(build)
 
         return testCaseExecution
     }

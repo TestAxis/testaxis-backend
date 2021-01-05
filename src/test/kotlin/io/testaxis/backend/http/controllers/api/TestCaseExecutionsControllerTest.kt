@@ -5,6 +5,7 @@ import io.testaxis.backend.apiRoute
 import io.testaxis.backend.models.Build
 import io.testaxis.backend.models.Project
 import io.testaxis.backend.models.TestCaseExecution
+import io.testaxis.backend.models.User
 import io.testaxis.backend.repositories.BuildRepository
 import io.testaxis.backend.repositories.ProjectRepository
 import io.testaxis.backend.repositories.TestCaseExecutionRepository
@@ -27,15 +28,16 @@ class TestCaseExecutionsControllerTest(
     @Autowired val testCaseExecutionRepository: TestCaseExecutionRepository,
     @Autowired val buildRepository: BuildRepository,
     @Autowired val projectRepository: ProjectRepository,
-    @Autowired val entityManager: EntityManager
 ) : BaseTest() {
+    lateinit var user: User
     lateinit var project: Project
     lateinit var build: Build
     lateinit var testCaseExecutions: List<TestCaseExecution>
 
     @BeforeEach
     fun setUp() {
-        project = projectRepository.save(Project(name = "project", slug = "org/project"))
+        user = fakeUser()
+        project = projectRepository.save(Project(name = "project", slug = "org/project", user = user))
         build = buildRepository.save(Build(project = project, branch = "new-feature", commit = "a212a3", slug = "org/project"))
         testCaseExecutions = testCaseExecutionRepository.saveAll(
             listOf(
@@ -63,7 +65,7 @@ class TestCaseExecutionsControllerTest(
                 )
             )
         ).toList()
-        entityManager.refresh(build)
+        refresh(build)
     }
 
     @Test

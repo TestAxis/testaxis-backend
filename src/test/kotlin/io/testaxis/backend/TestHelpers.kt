@@ -25,3 +25,9 @@ fun ContentResultMatchers.hasValidationError(key: String) = ResultMatcher { resu
 }
 
 fun apiRoute(url: String) = API_ROUTE_PREFIX + url
+
+fun randomString(length: Int = 8): String {
+    val charset = ('a'..'z') + ('A'..'Z') + ('0'..'9')
+
+    return (1..length).map { charset.random() }.joinToString("")
+}
