@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>TestAxis</title>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="h-screen w-screen bg-gray-100 flex items-center justify-center">
+    <div class="bg-white rounded-3xl max-w-md p-8 shadow-xl space-y-6">
+        <h1 class="text-3xl border-b pb-2">
+            TestAxis
+        </h1>
+        <p>
+            You have been logged in successfully. Here is your TestAxis Authentication Token.
+        </p>
+        <div>
+            <h2 class="font-bold uppercase tracking-wide text-sm text-center mb-2">
+                Authentication Token
+            </h2>
+            <div class="bg-gray-50 py-2 px-4 break-words">
+                {{ token }}
+            </div>
+        </div>
+        <p>
+            Use your authentication token to upload your first reports or enter the code in your IDE settings to
+            view the results.
+        </p>
+    </div>
+</div>
+</body>
+</html>
