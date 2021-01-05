@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import java.lang.reflect.UndeclaredThrowableException
 
 @RestController
 @Validated
@@ -49,16 +50,19 @@ class CoverageReportsController(
                         HttpStatus.OK
                     )
                 }
-        } catch (exception: JacocoXMLParser.JacocoXMLParserException) {
-            ResponseEntity(
-                """
-                    -------------------------------------------
-                    TestAxis -- Coverage Upload Failed
-                    -------------------------------------------
-                    ${exception.message}
-                    -------------------------------------------
-                """.trimIndent(),
-                HttpStatus.UNPROCESSABLE_ENTITY
-            )
+        } catch (exception: UndeclaredThrowableException) {
+            when (exception.undeclaredThrowable) {
+                is JacocoXMLParser.JacocoXMLParserException -> ResponseEntity(
+                    """
+                        -------------------------------------------
+                        TestAxis -- Coverage Upload Failed
+                        -------------------------------------------
+                        ${exception.message}
+                        -------------------------------------------
+                    """.trimIndent(),
+                    HttpStatus.UNPROCESSABLE_ENTITY
+                )
+                else -> throw exception
+            }
         }
 }

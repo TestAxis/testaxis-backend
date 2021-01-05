@@ -1,5 +1,6 @@
 package io.testaxis.backend.http.controllers
 
+import io.testaxis.backend.BaseTest
 import io.testaxis.backend.hasValidationError
 import io.testaxis.backend.http.transformers.dsl.KeyValueData
 import io.testaxis.backend.models.BuildStatus
@@ -41,7 +42,7 @@ class ReportsControllerTest(
     @Autowired val buildRepository: BuildRepository,
     @Autowired val projectRepository: ProjectRepository,
     @Autowired val entityManager: EntityManager
-) {
+) : BaseTest() {
     @SpyBean
     lateinit var simpMessagingTemplate: SimpMessagingTemplate
 
@@ -68,6 +69,7 @@ class ReportsControllerTest(
             param("commit", "abc123")
             param("branch", "new-feature")
             param("slug", "company/project")
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(200) }
         }
@@ -90,6 +92,7 @@ class ReportsControllerTest(
             param("commit", "abc123")
             param("branch", "new-feature")
             param("slug", "company/project")
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(200) }
         }
@@ -109,6 +112,7 @@ class ReportsControllerTest(
             param("commit", "abc123")
             param("branch", "new-feature")
             param("slug", "company/project")
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(200) }
         }
@@ -138,6 +142,7 @@ class ReportsControllerTest(
             param("commit", "abc123")
             param("branch", "new-feature")
             param("slug", "company/project")
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(200) }
         }
@@ -170,6 +175,7 @@ class ReportsControllerTest(
             param("build", "2343")
             param("build_url", "http://ci-runner.com/run/2343")
             param("job", "1234")
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(200) }
         }
@@ -194,6 +200,7 @@ class ReportsControllerTest(
             param("commit", "a2b4fa")
             param("branch", "new-feature")
             param("slug", "company/project")
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(200) }
             content { string(containsString("2 tests")) }
@@ -207,6 +214,7 @@ class ReportsControllerTest(
             param("commit", "a2b4fa")
             param("branch", "new-feature")
             param("slug", "company/project")
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(200) }
             content { string(containsString("2 tests")) }
@@ -221,6 +229,7 @@ class ReportsControllerTest(
             param("commit", "a2b4fa")
             param("branch", "new-feature")
             param("slug", "company/project")
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(200) }
             content { string(containsString("4 tests")) }
@@ -234,6 +243,7 @@ class ReportsControllerTest(
             param("commit", "a2b4fa")
             param("branch", "new-feature")
             param("slug", "company/project")
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(422) }
             content { hasValidationError("store.files") }
@@ -246,6 +256,7 @@ class ReportsControllerTest(
             file(fakeTestReport())
             param("branch", "new-feature")
             param("slug", "company/project")
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(422) }
             content { hasValidationError("commit") }
@@ -258,6 +269,7 @@ class ReportsControllerTest(
             file(fakeTestReport())
             param("commit", "a2b4fa")
             param("slug", "company/project")
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(422) }
             content { hasValidationError("branch") }
@@ -270,6 +282,7 @@ class ReportsControllerTest(
             file(fakeTestReport())
             param("commit", "a2b4fa")
             param("branch", "new-feature")
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(422) }
             content { hasValidationError("slug") }
@@ -283,6 +296,7 @@ class ReportsControllerTest(
             param("commit", "a2b4fa")
             param("branch", "new-feature")
             param("slug", "company/project")
+            asFakeUser()
         }
 
         verify(simpMessagingTemplate).convertAndSend(eq("/topic/builds"), any<KeyValueData>())
@@ -295,6 +309,7 @@ class ReportsControllerTest(
             param("commit", "ae12be2")
             param("branch", "new-feature")
             param("slug", "company/project")
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(200) }
         }
@@ -315,6 +330,7 @@ class ReportsControllerTest(
             param("commit", "ae12be2")
             param("branch", "new-feature")
             param("slug", "company/project")
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(200) }
         }

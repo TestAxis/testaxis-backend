@@ -11,7 +11,8 @@ import java.nio.charset.StandardCharsets
 
 const val API_ROUTE_PREFIX = "/api/v1"
 
-fun ContentResultMatchers.jsonContent(value: Any) = json(ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(value))
+fun ContentResultMatchers.jsonContent(value: Any) =
+    json(ObjectMapper().writer().withDefaultPrettyPrinter().writeValueAsString(value))
 
 fun ContentResultMatchers.jsonContent(vararg values: Any) = jsonContent(values)
 

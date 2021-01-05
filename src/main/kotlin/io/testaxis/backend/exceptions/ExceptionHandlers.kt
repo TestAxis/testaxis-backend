@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.validation.BindException
 import org.springframework.validation.BindingResult
 import org.springframework.validation.FieldError
+import org.springframework.validation.ObjectError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -17,7 +18,7 @@ object ExceptionHandlers {
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleMethodArgumentNotValidExceptions(exception: MethodArgumentNotValidException) =
-        handleBindExceptions(exception.bindingResult)
+        parseFieldErrors(exception.bindingResult.allErrors)
 
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ExceptionHandler(ConstraintViolationException::class)
@@ -28,8 +29,13 @@ object ExceptionHandlers {
 
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
     @ExceptionHandler(BindException::class)
-    fun handleBindExceptions(bindingResult: BindingResult) =
-        bindingResult.allErrors.filterIsInstance<FieldError>().map {
-            it.field to it.defaultMessage
-        }.toMap()
+    fun handleBindExceptions(bindingResult: BindingResult) = parseFieldErrors(bindingResult.allErrors)
+
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    @ExceptionHandler(CustomValidationException::class)
+    fun handleCustomValidationExceptions(exception: CustomValidationException) = parseFieldErrors(exception.errors)
+
+    private fun parseFieldErrors(errors: List<ObjectError>) = errors.filterIsInstance<FieldError>().map {
+        it.field to it.defaultMessage
+    }.toMap()
 }

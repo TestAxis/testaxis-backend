@@ -1,12 +1,12 @@
 package io.testaxis.backend.http.controllers
 
+import io.testaxis.backend.BaseTest
 import io.testaxis.backend.models.Build
 import io.testaxis.backend.models.TestCaseExecution
 import io.testaxis.backend.repositories.BuildRepository
 import io.testaxis.backend.repositories.ProjectRepository
 import io.testaxis.backend.repositories.TestCaseExecutionRepository
 import org.hamcrest.CoreMatchers.containsString
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -34,7 +34,7 @@ class CoverageReportsControllerTest(
     @Autowired val projectRepository: ProjectRepository,
     @Autowired val testCaseExecutionRepository: TestCaseExecutionRepository,
     @Autowired val entityManager: EntityManager
-) {
+) : BaseTest() {
     private val testReport =
         """
             <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -71,6 +71,7 @@ class CoverageReportsControllerTest(
 
         mockMvc.multipart("/reports/${testCaseExecution.build.id}/coverage") {
             file(fakeReport())
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(200) }
         }
@@ -84,6 +85,7 @@ class CoverageReportsControllerTest(
 
         mockMvc.multipart("/reports/${testCaseExecution.build.id}/coverage") {
             file(fakeReport())
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(200) }
         }
@@ -97,6 +99,7 @@ class CoverageReportsControllerTest(
 
         mockMvc.multipart("/reports/${testCaseExecution.build.id}/coverage") {
             file(fakeReport())
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(200) }
         }
@@ -110,6 +113,7 @@ class CoverageReportsControllerTest(
 
         mockMvc.multipart("/reports/${testCaseExecution.build.id}/coverage") {
             file(fakeReport())
+            asFakeUser()
         }.andExpect {
             status { isEqualTo(200) }
         }
@@ -121,7 +125,7 @@ class CoverageReportsControllerTest(
     }
 
     @Test
-    @Disabled
+    // @Disabled
     fun `A user cannot upload a coverage report with an invalid session id or other parser errors`() {
         val testCaseExecution = fakeTestCaseExecution()
 
@@ -136,6 +140,7 @@ class CoverageReportsControllerTest(
 
         mockMvc.multipart("/reports/${testCaseExecution.build.id}/coverage") {
             file(fakeReport(report = report))
+            asFakeUser()
         }.andExpect {
             content {
                 status { isEqualTo(422) }
