@@ -1,5 +1,6 @@
 package io.testaxis.backend.http.controllers.api
 
+import io.testaxis.backend.BaseTest
 import io.testaxis.backend.apiRoute
 import io.testaxis.backend.models.Build
 import io.testaxis.backend.models.BuildStatus
@@ -24,7 +25,7 @@ class BuildsControllerTest(
     @Autowired val buildRepository: BuildRepository,
     @Autowired val projectRepository: ProjectRepository,
     @Autowired val entityManager: EntityManager
-) {
+) : BaseTest() {
     @Test
     fun `A user can retrieve all builds for a given project`() {
         val project = projectRepository.save(Project(name = "project", slug = "org/project"))
@@ -38,6 +39,7 @@ class BuildsControllerTest(
 
         mockMvc.get(apiRoute("/projects/${project.id}/builds")) {
             accept = MediaType.APPLICATION_JSON
+            asFakeUser()
         }.andExpect {
             status { isOk }
 
@@ -69,6 +71,7 @@ class BuildsControllerTest(
 
         mockMvc.get(apiRoute("/projects/${validProject.id}/builds")) {
             accept = MediaType.APPLICATION_JSON
+            asFakeUser()
         }.andExpect {
             status { isOk }
 

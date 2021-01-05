@@ -1,5 +1,6 @@
 package io.testaxis.backend.http.controllers.api
 
+import io.testaxis.backend.BaseTest
 import io.testaxis.backend.apiRoute
 import io.testaxis.backend.models.Build
 import io.testaxis.backend.models.Project
@@ -27,7 +28,7 @@ class TestCaseExecutionsControllerTest(
     @Autowired val buildRepository: BuildRepository,
     @Autowired val projectRepository: ProjectRepository,
     @Autowired val entityManager: EntityManager
-) {
+) : BaseTest() {
     lateinit var project: Project
     lateinit var build: Build
     lateinit var testCaseExecutions: List<TestCaseExecution>
@@ -69,6 +70,7 @@ class TestCaseExecutionsControllerTest(
     fun `A user can retrieve all test case executions for a given build`() {
         mockMvc.get(apiRoute("/projects/${project.id}/builds/${build.id}/testcaseexecutions")) {
             accept = MediaType.APPLICATION_JSON
+            asFakeUser()
         }.andExpect {
             status { isOk }
 
@@ -90,6 +92,7 @@ class TestCaseExecutionsControllerTest(
     fun `A user can retrieve a successful single test case execution with more details`() {
         mockMvc.get(apiRoute("/projects/${project.id}/builds/${build.id}/testcaseexecutions/${testCaseExecutions[0].id}")) {
             accept = MediaType.APPLICATION_JSON
+            asFakeUser()
         }.andExpect {
             status { isOk }
 
@@ -105,6 +108,7 @@ class TestCaseExecutionsControllerTest(
     fun `A user can retrieve a failing single test case execution with more details`() {
         mockMvc.get(apiRoute("/projects/${project.id}/builds/${build.id}/testcaseexecutions/${testCaseExecutions[1].id}")) {
             accept = MediaType.APPLICATION_JSON
+            asFakeUser()
         }.andExpect {
             status { isOk }
 

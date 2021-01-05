@@ -26,5 +26,5 @@ abstract class Transformer {
         return extendedConvertersData + data
     }
 
-    fun <T> transform(entities: List<T>, converter: converter<T>) = entities.map(converter)
+    fun <T> transform(entities: Iterable<T>, converter: converter<T>) = entities.map(converter)
 }
