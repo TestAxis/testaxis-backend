@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component
 class BuildTransformer : Transformer() {
     fun summary(build: Build) = transform(build) {
         "id" - id
+        "project_id" - project.id
         "status" - status.toString().toLowerCase()
         "branch" - branch
         "commit" - commit
