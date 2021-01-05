@@ -11,10 +11,17 @@ interface ProjectRepository : CrudRepository<Project, Long>, CustomProjectReposi
 }
 
 interface CustomProjectRepository {
-    fun findBySlugOrCreate(slug: String): Project
+    fun findBySlugOrCreate(slug: String, user: User): Project
 }
 
 class CustomProjectRepositoryImpl(val repository: ProjectRepository) : CustomProjectRepository {
-    override fun findBySlugOrCreate(slug: String): Project =
-        repository.findBySlug(slug) ?: repository.save(Project(name = Project.splitNameFromSlug(slug), slug = slug, user = User.fake))
+    override fun findBySlugOrCreate(slug: String, user: User): Project {
+        val project = repository.findBySlug(slug)
+
+        if (project == null || project.user != user) {
+            return repository.save(Project(name = Project.splitNameFromSlug(slug), slug = slug, user = user))
+        }
+
+        return project
+    }
 }

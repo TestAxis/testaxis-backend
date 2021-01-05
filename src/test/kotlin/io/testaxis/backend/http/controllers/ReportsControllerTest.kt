@@ -31,7 +31,6 @@ import strikt.assertions.isFalse
 import strikt.assertions.isNotNull
 import strikt.assertions.isNull
 import strikt.assertions.isTrue
-import javax.persistence.EntityManager
 import javax.transaction.Transactional
 
 @SpringBootTest
@@ -84,14 +83,15 @@ class ReportsControllerTest(
 
     @Test
     fun `A user can upload a report for an existing project which does not get re-created`() {
-        val fakeProject = projectRepository.findBySlugOrCreate("company/project")
+        val fakeUser = fakeUser()
+        val fakeProject = projectRepository.findBySlugOrCreate("company/project", fakeUser)
 
         mockMvc.multipart("/reports") {
             file(fakeTestReport())
             param("commit", "abc123")
             param("branch", "new-feature")
             param("slug", "company/project")
-            asFakeUser()
+            asFakeUser(fakeUser)
         }.andExpect {
             status { isEqualTo(200) }
         }
@@ -102,6 +102,26 @@ class ReportsControllerTest(
 
             expectThat(project).equals(fakeProject)
         }
+    }
+
+    @Test
+    fun `A user cannot upload a report for an existing project they do not have access to`() {
+        val fakeUser = fakeUser()
+        projectRepository.findBySlugOrCreate("company/project", fakeUser)
+
+        val newUser = fakeUser()
+
+        mockMvc.multipart("/reports") {
+            file(fakeTestReport())
+            param("commit", "abc123")
+            param("branch", "new-feature")
+            param("slug", "company/project")
+            asFakeUser(newUser)
+        }.andExpect {
+            status { isEqualTo(200) }
+        }
+
+        expectThat(projectRepository.count()).isEqualTo(2)
     }
 
     @Test

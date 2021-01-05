@@ -18,6 +18,6 @@ class Project(
     var user: User,
 ) : AbstractJpaPersistable<Long>() {
     companion object {
-        fun splitNameFromSlug(slug: String) = slug.split('/')[0]
+        fun splitNameFromSlug(slug: String) = slug.split('/').getOrNull(1) ?: slug
     }
 }

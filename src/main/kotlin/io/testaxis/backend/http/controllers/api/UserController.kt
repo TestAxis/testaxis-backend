@@ -2,7 +2,6 @@ package io.testaxis.backend.http.controllers.api
 
 // Based on https://www.callicoder.com/spring-boot-security-oauth2-social-login-part-1
 
-import io.testaxis.backend.exceptions.ResourceNotFoundException
 import io.testaxis.backend.http.transformers.UserTransformer
 import io.testaxis.backend.http.transformers.dsl.KeyValueData
 import io.testaxis.backend.repositories.UserRepository
