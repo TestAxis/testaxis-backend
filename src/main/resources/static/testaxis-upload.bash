@@ -704,9 +704,9 @@ fi
 
 query=$(echo "${query}" | tr -d ' ')
 # Full query without token (to display on terminal output)
-queryNoToken=$(echo "package=bash-$VERSION&token=secret&$query" | tr -d ' ')
+queryNoToken=$(echo "package=bash-$VERSION&$query" | tr -d ' ')
 # now add token to query
-query=$(echo "package=bash-$VERSION&token=$token&$query" | tr -d ' ')
+query=$(echo "package=bash-$VERSION&$query" | tr -d ' ')
 
 if [ "$search_in_o" != "" ]; then
   # location override
@@ -739,7 +739,7 @@ fi
 say "${e}==>${x} Preparing upload"
 
 say "    ${e}url:${x} $url"
-say "    ${e}query:${x} $query"
+say "    ${e}query:${x} $queryNoToken"
 
 say "${e}==>${x} Uploading test report to TestAxis"
 
@@ -755,6 +755,7 @@ fi
 # shellcheck disable=SC2086,2090
 res=$(curl -X POST $curl_s $curlargs $cacert \
   --retry 5 --retry-delay 2 --connect-timeout 2 \
+  -H "Authorization: Bearer $token" \
   $curl_files \
   --write-out "\nHTTP %{http_code}" \
   -o - \
@@ -802,7 +803,7 @@ else
   url="$url/$testaxis_build_id/coverage"
 
   say "    ${e}url:${x} $url"
-  say "    ${e}query:${x} $query"
+  say "    ${e}query:${x} $queryNoToken"
 
   say "${e}==>${x} Uploading coverage reports to TestAxis"
 
@@ -818,6 +819,7 @@ else
   # shellcheck disable=SC2086,2090
   res=$(curl -X POST $curl_s $curlargs $cacert \
     --retry 5 --retry-delay 2 --connect-timeout 2 \
+    -H "Authorization: Bearer $token" \
     "${curl_files[@]}" \
     --write-out "\nHTTP %{http_code}" \
     -o - \
