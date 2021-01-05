@@ -17,7 +17,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
-import javax.persistence.EntityManager
 import javax.transaction.Transactional
 
 @SpringBootTest
@@ -38,7 +37,14 @@ class TestCaseExecutionsControllerTest(
     fun setUp() {
         user = fakeUser()
         project = projectRepository.save(Project(name = "project", slug = "org/project", user = user))
-        build = buildRepository.save(Build(project = project, branch = "new-feature", commit = "a212a3", slug = "org/project"))
+        build = buildRepository.save(
+            Build(
+                project = project,
+                branch = "new-feature",
+                commit = "a212a3",
+                slug = "org/project"
+            )
+        )
         testCaseExecutions = testCaseExecutionRepository.saveAll(
             listOf(
                 TestCaseExecution(
@@ -65,14 +71,14 @@ class TestCaseExecutionsControllerTest(
                 )
             )
         ).toList()
-        refresh(build)
+        refresh(user, project, build)
     }
 
     @Test
     fun `A user can retrieve all test case executions for a given build`() {
         mockMvc.get(apiRoute("/projects/${project.id}/builds/${build.id}/testcaseexecutions")) {
             accept = MediaType.APPLICATION_JSON
-            asFakeUser()
+            asFakeUser(user)
         }.andExpect {
             status { isOk }
 
@@ -91,10 +97,66 @@ class TestCaseExecutionsControllerTest(
     }
 
     @Test
+    fun `A user cannot retrieve all test case executions for a project they do not have access to`() {
+        val loggedInUser = fakeUser()
+
+        mockMvc.get(apiRoute("/projects/${project.id}/builds/${build.id}/testcaseexecutions")) {
+            accept = MediaType.APPLICATION_JSON
+            asFakeUser(loggedInUser)
+        }.andExpect {
+            status { isNotFound }
+        }
+    }
+
+    @Test
+    fun `A user cannot retrieve test case executions they do not have access to`() {
+        val otherUser = fakeUser()
+
+        val otherProject = projectRepository.save(Project(name = "o-project", slug = "org/o-project", user = otherUser))
+        val otherBuild = buildRepository.save(
+            Build(
+                project = otherProject,
+                branch = "other-feature",
+                commit = "a212a3",
+                slug = "org/project"
+            )
+        )
+        val testCaseExecution = testCaseExecutionRepository.save(
+            TestCaseExecution(
+                build = otherBuild,
+                testSuiteName = "io.testaxis.backend.http.controllers.ReportsControllerTest",
+                name = "Another user can upload a single report with build information that is persisted()",
+                className = "io.testaxis.backend.http.controllers.ReportsControllerTest",
+                time = 0.043,
+                passed = true,
+                failureMessage = null,
+                failureType = null,
+                failureContent = null,
+            )
+        )
+        refresh(otherUser, otherProject, otherBuild)
+
+        mockMvc.get(apiRoute("/projects/${otherProject.id}/builds/${otherBuild.id}/testcaseexecutions")) {
+            accept = MediaType.APPLICATION_JSON
+            asFakeUser(otherUser)
+        }.andExpect {
+            status { isOk }
+
+            jsonPath("$[0].id") { value(testCaseExecution.id!!) }
+            jsonPath("$[0].name") { value("Another user can upload a single report with build information that is persisted()") }
+            jsonPath("$[0].class_name") { value("io.testaxis.backend.http.controllers.ReportsControllerTest") }
+            jsonPath("$[0].passed") { value(true) }
+            jsonPath("$[0].failure_message") { doesNotExist() }
+
+            jsonPath("$[1]") { doesNotExist() }
+        }
+    }
+
+    @Test
     fun `A user can retrieve a successful single test case execution with more details`() {
         mockMvc.get(apiRoute("/projects/${project.id}/builds/${build.id}/testcaseexecutions/${testCaseExecutions[0].id}")) {
             accept = MediaType.APPLICATION_JSON
-            asFakeUser()
+            asFakeUser(user)
         }.andExpect {
             status { isOk }
 
@@ -110,7 +172,7 @@ class TestCaseExecutionsControllerTest(
     fun `A user can retrieve a failing single test case execution with more details`() {
         mockMvc.get(apiRoute("/projects/${project.id}/builds/${build.id}/testcaseexecutions/${testCaseExecutions[1].id}")) {
             accept = MediaType.APPLICATION_JSON
-            asFakeUser()
+            asFakeUser(user)
         }.andExpect {
             status { isOk }
 
@@ -120,6 +182,18 @@ class TestCaseExecutionsControllerTest(
             jsonPath("$.passed") { value(false) }
             jsonPath("$.failure_message") { value("An error occurred") }
             jsonPath("$.failure_content") { value("The stacktrace of the failure") }
+        }
+    }
+
+    @Test
+    fun `A user cannot retrieve a single test case execution they do not have access to`() {
+        val loggedInUser = fakeUser()
+
+        mockMvc.get(apiRoute("/projects/${project.id}/builds/${build.id}/testcaseexecutions/${testCaseExecutions[0].id}")) {
+            accept = MediaType.APPLICATION_JSON
+            asFakeUser(loggedInUser)
+        }.andExpect {
+            status { isNotFound }
         }
     }
 }

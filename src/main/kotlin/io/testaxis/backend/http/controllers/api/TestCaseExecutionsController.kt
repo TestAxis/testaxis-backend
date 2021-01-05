@@ -1,9 +1,13 @@
 package io.testaxis.backend.http.controllers.api
 
+import io.testaxis.backend.exceptions.ResourceNotFoundException
 import io.testaxis.backend.http.MustExist
 import io.testaxis.backend.http.transformers.TestCaseExecutionTransformer
 import io.testaxis.backend.models.Build
 import io.testaxis.backend.models.TestCaseExecution
+import io.testaxis.backend.repositories.UserRepository
+import io.testaxis.backend.security.CurrentUser
+import io.testaxis.backend.security.UserPrincipal
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -15,15 +19,25 @@ import javax.transaction.Transactional
 @Transactional
 @RequestMapping("/api/v1/projects/{project}/builds/{build}/testcaseexecutions")
 @Validated
-class TestCaseExecutionsController(val transformer: TestCaseExecutionTransformer) {
-    @Suppress("ForbiddenComment")
-    // TODO: scope build by project
+class TestCaseExecutionsController(val userRepository: UserRepository, val transformer: TestCaseExecutionTransformer) {
     @GetMapping
-    fun index(@PathVariable @MustExist build: Build) =
-        transformer.transform(build.testCaseExecutions, transformer::summary)
+    fun index(@CurrentUser userPrincipal: UserPrincipal, @PathVariable @MustExist build: Build) =
+        transformer.transform(
+            userPrincipal.user(userRepository)
+                .projects.find { it == build.project }
+                ?.builds?.find { it == build }
+                ?.testCaseExecutions
+                ?: throw ResourceNotFoundException(),
+            transformer::summary
+        )
 
-    @Suppress("ForbiddenComment")
-    // TODO: scope execution by build and project
     @GetMapping("/{testCaseExecution}")
-    fun show(@PathVariable @MustExist testCaseExecution: TestCaseExecution) = transformer.details(testCaseExecution)
+    fun show(@CurrentUser userPrincipal: UserPrincipal, @PathVariable @MustExist testCaseExecution: TestCaseExecution) =
+        transformer.details(
+            userPrincipal.user(userRepository)
+                .projects.find { it == testCaseExecution.build.project }
+                ?.builds?.find { it == testCaseExecution.build }
+                ?.testCaseExecutions?.find { it == testCaseExecution }
+                ?: throw ResourceNotFoundException()
+        )
 }
