@@ -8,7 +8,12 @@
 </h1>
 
 <p align="center">
-    ![Build](https://github.com/testaxis/testaxis-backend/workflows/Build/badge.svg)
+    <a href="https://github.com/testaxis/testaxis-backend/actions?query=workflow%3ABuild">
+        <img src="https://img.shields.io/github/workflow/status/testaxis/testaxis-backend/Build?style=for-the-badge" />
+    </a>
+    <a href="https://github.com/testaxis/testaxis-backend/actions?query=workflow%3ADeploy">
+        <img src="https://img.shields.io/github/workflow/status/testaxis/testaxis-backend/Deploy?label=Deploy&style=for-the-badge" />
+    </a>
 </p>
 
 The backend application of TestAxis gathers test execution reports, performs analyses, and provides an API for the IDE plugin.
