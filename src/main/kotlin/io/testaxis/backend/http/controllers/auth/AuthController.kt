@@ -15,7 +15,6 @@ import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.ModelAndView
@@ -25,18 +24,17 @@ import javax.validation.constraints.NotBlank
 
 @RestController
 @Validated
-@RequestMapping("/api/v1/auth")
 class AuthController(
     val authenticationManager: AuthenticationManager,
     val userRepository: UserRepository,
     val passwordEncoder: PasswordEncoder,
     val tokenProvider: TokenProvider
 ) {
-    @PostMapping("/login")
+    @PostMapping("/api/v1/auth/login")
     fun authenticateUser(@RequestBody @Valid loginRequest: LoginRequest) =
         AuthResponse(login(loginRequest.email, loginRequest.password))
 
-    @PostMapping("/register")
+    @PostMapping("/api/v1/auth/register")
     fun registerUser(@RequestBody @Valid signUpRequest: SignUpRequest): AuthResponse {
         if (userRepository.existsByEmail(signUpRequest.email)) {
             throw CustomValidationException("email", "Email address already in use.")
@@ -54,7 +52,7 @@ class AuthController(
         return AuthResponse(login(signUpRequest.email, signUpRequest.password))
     }
 
-    @GetMapping("/token")
+    @GetMapping("/auth/token")
     fun displayToken(@RequestParam token: String) = ModelAndView("token", mapOf("token" to token))
 
     private fun login(email: String, password: String): String {
