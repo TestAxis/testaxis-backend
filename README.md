@@ -1,5 +1,5 @@
 <p align="center">
-    <img src=".github/readme/logo.svg" width="600"/>
+    <img src=".github/readme/logo.svg" height="125"/>
     <br />
 </p>
 
