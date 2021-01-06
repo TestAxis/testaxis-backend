@@ -82,6 +82,7 @@ class SecurityConfig(
                 authorize("/**/*.css", permitAll)
                 authorize("/**/*.js", permitAll)
 
+                authorize("/api/v1/auth/**", permitAll)
                 authorize("/auth/**", permitAll)
                 authorize("/oauth2/**", permitAll)
 
