@@ -1,6 +1,15 @@
-# TestAxis: Backend Application
+<p align="center">
+    <img src=".github/readme/logo.svg" width="600"/>
+    <br />
+</p>
 
-![Build](https://github.com/testaxis/testaxis-backend/workflows/Build/badge.svg)
+<h1 align="center">
+    TestAxis: Backend Application
+</h1>
+
+<p align="center">
+    ![Build](https://github.com/testaxis/testaxis-backend/workflows/Build/badge.svg)
+</p>
 
 The backend application of TestAxis gathers test execution reports, performs analyses, and provides an API for the IDE plugin.
 
