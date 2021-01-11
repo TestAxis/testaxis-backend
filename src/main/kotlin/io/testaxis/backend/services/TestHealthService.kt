@@ -2,11 +2,10 @@ package io.testaxis.backend.services
 
 import io.testaxis.backend.models.Build
 import io.testaxis.backend.models.TestCaseExecution
-import io.testaxis.backend.repositories.TestCaseExecutionRepository
 import org.springframework.stereotype.Service
 
 @Service
-class TestHealthService(val testCaseExecutionRepository: TestCaseExecutionRepository) {
+class TestHealthService {
     companion object {
         const val RECENT_BUILDS_AMOUNT = 50
         const val FAILS_OFTEN_THRESHOLD = 0.10
@@ -14,6 +13,7 @@ class TestHealthService(val testCaseExecutionRepository: TestCaseExecutionReposi
 
     interface HealthWarning
     data class FailsOftenHealthWarning(val recentFailures: Int) : HealthWarning
+    data class SlowerThanAverage(val averageTime: Double) : HealthWarning
 
     fun investigate(testCaseExecution: TestCaseExecution): List<HealthWarning> {
         val warnings = mutableListOf<HealthWarning>()
@@ -21,6 +21,13 @@ class TestHealthService(val testCaseExecutionRepository: TestCaseExecutionReposi
         testCaseExecution.countRecentFailures().let { recentFailures ->
             if (recentFailures > FAILS_OFTEN_THRESHOLD * RECENT_BUILDS_AMOUNT) {
                 warnings.add(FailsOftenHealthWarning(recentFailures))
+            }
+        }
+
+        testCaseExecution.build.averageTestExecutionTime().let { averageTime ->
+            println(averageTime)
+            if (testCaseExecution.time > averageTime) {
+                warnings.add(SlowerThanAverage(averageTime))
             }
         }
 
@@ -38,4 +45,6 @@ class TestHealthService(val testCaseExecutionRepository: TestCaseExecutionReposi
                 ?.passed?.not() ?: false
         }
     }
+
+    private fun Build.averageTestExecutionTime() = testCaseExecutions.map { it.time }.average()
 }

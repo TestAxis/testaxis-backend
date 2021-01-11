@@ -4,7 +4,6 @@ import io.testaxis.backend.BaseTest
 import io.testaxis.backend.models.Build
 import io.testaxis.backend.models.Project
 import io.testaxis.backend.models.TestCaseExecution
-import io.testaxis.backend.models.User
 import io.testaxis.backend.repositories.BuildRepository
 import io.testaxis.backend.repositories.ProjectRepository
 import io.testaxis.backend.repositories.TestCaseExecutionRepository
@@ -36,23 +35,18 @@ class TestHealthServiceTest(
         project = projectRepository.save(Project(name = "project", slug = "org/project", user = fakeUser()))
     }
 
-    fun fakeTestCaseExecution(passed: Boolean = true): TestCaseExecution {
-        val build = buildRepository.save(
-            Build(
-                project = project,
-                branch = "new-feature",
-                commit = "a212a3",
-                slug = "org/project"
-            )
+    fun fakeTestCaseExecution(passed: Boolean = true, time: Double = 0.043, build: Build? = null): TestCaseExecution {
+        val persistedBuild = build ?: buildRepository.save(
+            Build(project = project, branch = "new-feature", commit = "a212a3", slug = "org/project")
         )
 
         val testCaseExecution = testCaseExecutionRepository.save(
             TestCaseExecution(
-                build = build,
+                build = persistedBuild,
                 testSuiteName = "io.testaxis.backend.http.controllers.ReportsControllerTest",
                 name = "A user can upload a single report with build information that is persisted()",
                 className = "io.testaxis.backend.http.controllers.ReportsControllerTest",
-                time = 0.043,
+                time = time,
                 passed = passed,
                 failureMessage = null,
                 failureType = null,
@@ -60,7 +54,7 @@ class TestHealthServiceTest(
             )
         )
 
-        refresh(build, project)
+        refresh(persistedBuild, project)
 
         return testCaseExecution
     }
@@ -84,6 +78,39 @@ class TestHealthServiceTest(
         repeat(4) { fakeTestCaseExecution(passed = false) }
 
         val warnings = testHealthService.investigate(fakeTestCaseExecution(passed = false))
+
+        expectThat(warnings).isEmpty()
+    }
+
+    @Test
+    fun `it detects tests that are slower than average`() {
+        val build = buildRepository.save(
+            Build(project = project, branch = "new-feature", commit = "a212a3", slug = "org/project")
+        )
+
+        fakeTestCaseExecution(time = 0.1, build = build)
+        fakeTestCaseExecution(time = 0.2, build = build)
+        fakeTestCaseExecution(time = 0.4, build = build)
+
+        val warnings = testHealthService.investigate(fakeTestCaseExecution(time = 0.3, build = build))
+
+        expectThat(warnings).hasSize(1)
+        expectThat(warnings[0]).isA<TestHealthService.SlowerThanAverage>().get {
+            expectThat(averageTime).isEqualTo(0.25)
+        }
+    }
+
+    @Test
+    fun `it does not detect tests that are not slower than average`() {
+        val build = buildRepository.save(
+            Build(project = project, branch = "new-feature", commit = "a212a3", slug = "org/project")
+        )
+
+        fakeTestCaseExecution(time = 0.1, build = build)
+        fakeTestCaseExecution(time = 0.3, build = build)
+        fakeTestCaseExecution(time = 0.4, build = build)
+
+        val warnings = testHealthService.investigate(fakeTestCaseExecution(time = 0.2, build = build))
 
         expectThat(warnings).isEmpty()
     }
