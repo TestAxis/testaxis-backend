@@ -19,6 +19,12 @@ spring:
               - user:email
               - read:user
 
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 100MB
+      max-request-size: 100MB
+
 app:
   auth:
     tokenSecret: u0fNVcI5VfhURTascNxULCBBcw4ac8+8pdKQPEvkkmOqbyKj05PRy+cqMnqGDdHwanBd1/+jk4qBBuZ3F+cGUQ== # For development, production should override
