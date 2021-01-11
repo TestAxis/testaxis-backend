@@ -67,8 +67,8 @@ class TestHealthServiceTest(
         val warnings = testHealthService.investigate(fakeTestCaseExecution(passed = false))
 
         expectThat(warnings).hasSize(1)
-        expectThat(warnings[0]).isA<TestHealthService.FailsOftenHealthWarning>().get {
-            expectThat(recentFailures).isEqualTo(6)
+        expectThat(warnings[0]).isA<TestHealthService.HealthWarning<Int>>().get {
+            expectThat(value).isEqualTo(6)
         }
     }
 
@@ -95,8 +95,8 @@ class TestHealthServiceTest(
         val warnings = testHealthService.investigate(fakeTestCaseExecution(time = 0.3, build = build))
 
         expectThat(warnings).hasSize(1)
-        expectThat(warnings[0]).isA<TestHealthService.SlowerThanAverage>().get {
-            expectThat(averageTime).isEqualTo(0.25)
+        expectThat(warnings[0]).isA<TestHealthService.HealthWarning<Double>>().get {
+            expectThat(value).isEqualTo(0.25)
         }
     }
 

@@ -63,7 +63,7 @@ class TestCaseExecutionsControllerTest(
                     testSuiteName = "io.testaxis.backend.http.controllers.ReportsControllerTest",
                     name = "A user can upload multiple reports with build information that is persisted()",
                     className = "io.testaxis.backend.http.controllers.ReportsControllerTest",
-                    time = 0.043,
+                    time = 0.086,
                     passed = false,
                     failureMessage = "An error occurred",
                     failureType = "org.opentest4j.AssertionFailedError",
@@ -194,6 +194,31 @@ class TestCaseExecutionsControllerTest(
             asFakeUser(loggedInUser)
         }.andExpect {
             status { isNotFound }
+        }
+    }
+
+    @Test
+    fun `A user can retrieve a health warning of a test case execution when they exist`() {
+        mockMvc.get(apiRoute("/projects/${project.id}/builds/${build.id}/testcaseexecutions/${testCaseExecutions[1].id}/health")) {
+            accept = MediaType.APPLICATION_JSON
+            asFakeUser(user)
+        }.andExpect {
+            status { isOk }
+
+            jsonPath("$[0].type") { value("slower_than_average") }
+            jsonPath("$[0].value") { value(0.0645) }
+        }
+    }
+
+    @Test
+    fun `A user can retrieve an empty list of health warnings of a test case execution when there are no warnings`() {
+        mockMvc.get(apiRoute("/projects/${project.id}/builds/${build.id}/testcaseexecutions/${testCaseExecutions[0].id}/health")) {
+            accept = MediaType.APPLICATION_JSON
+            asFakeUser(user)
+        }.andExpect {
+            status { isOk }
+
+            jsonPath("$[0]") { doesNotExist() }
         }
     }
 }

@@ -11,23 +11,21 @@ class TestHealthService {
         const val FAILS_OFTEN_THRESHOLD = 0.10
     }
 
-    interface HealthWarning
-    data class FailsOftenHealthWarning(val recentFailures: Int) : HealthWarning
-    data class SlowerThanAverage(val averageTime: Double) : HealthWarning
+    data class HealthWarning<T>(val type: HealthWarningType, val value: T)
+    enum class HealthWarningType { FAILS_OFTEN, SLOWER_THAN_AVERAGE }
 
-    fun investigate(testCaseExecution: TestCaseExecution): List<HealthWarning> {
-        val warnings = mutableListOf<HealthWarning>()
+    fun investigate(testCaseExecution: TestCaseExecution): List<HealthWarning<*>> {
+        val warnings = mutableListOf<HealthWarning<*>>()
 
         testCaseExecution.countRecentFailures().let { recentFailures ->
             if (recentFailures > FAILS_OFTEN_THRESHOLD * RECENT_BUILDS_AMOUNT) {
-                warnings.add(FailsOftenHealthWarning(recentFailures))
+                warnings.add(HealthWarning(HealthWarningType.FAILS_OFTEN, recentFailures))
             }
         }
 
         testCaseExecution.build.averageTestExecutionTime().let { averageTime ->
-            println(averageTime)
             if (testCaseExecution.time > averageTime) {
-                warnings.add(SlowerThanAverage(averageTime))
+                warnings.add(HealthWarning(HealthWarningType.SLOWER_THAN_AVERAGE, averageTime))
             }
         }
 
