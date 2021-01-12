@@ -18,7 +18,7 @@
 
 The backend application of TestAxis gathers test execution reports, performs analyses, and provides an API for the IDE plugin.
 
-## Background Story
+## What is TestAxis?
 
 Commonly used CI platforms such as GitHub Actions or Travis CI let developers dive through hundreds of lines of logs to find the issue of a failing build.
 It turns out that the most important reason for a failing build is failing tests.
@@ -32,7 +32,25 @@ For example, a failure message like “Failed asserting that 24 is equal to 15�
 
 Thus, additional context is needed to find the issue causing the test to fail.
 Therefore, developers could be helped by providing “test context” in the detailed overview of failed tests.
-The test context may include additional information such as the commit that made the test fail, the test code, the code under test, the previous failures and fixes of the test, and statistics on how the test behaved in the past.
+The test context may include additional information such as the commit that made the test fail, the test code, and the _changed_ code under test.
 The goal is to give developers insights into failing tests after CI builds and to provide them with information that helps to resolve the issues causing the failing tests faster.
-The insights will be provided directly in the IDE, right there where the developer needs to fix the failing tests.
-The information presented to the user is based on historical test executions with the goal to shift the axis of historical builds from a timeline of builds to a timeline of (linked) test executions.
+The insights are provided directly in the IDE, right there where the developer needs to fix the failing tests.
+The information presented to the user is based on historical test executions with the goal to shift the axis from builds to tests.
+
+## Available Endpoints
+
+Coming soon.
+
+## Development
+
+This is a Spring Boot application that features a REST API and provides WebSocket connections.
+
+Run the application:
+```bash
+$ gradlew bootRun
+```
+
+Run the tests and static analysis tools:
+```
+$ gradlew check
+```
