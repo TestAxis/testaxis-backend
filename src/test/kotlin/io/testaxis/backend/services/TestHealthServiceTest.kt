@@ -90,13 +90,13 @@ class TestHealthServiceTest(
 
         fakeTestCaseExecution(time = 0.1, build = build)
         fakeTestCaseExecution(time = 0.2, build = build)
-        fakeTestCaseExecution(time = 0.4, build = build)
+        fakeTestCaseExecution(time = 0.3, build = build)
 
-        val warnings = testHealthService.investigate(fakeTestCaseExecution(time = 0.3, build = build))
+        val warnings = testHealthService.investigate(fakeTestCaseExecution(time = 0.9, build = build))
 
         expectThat(warnings).hasSize(1)
         expectThat(warnings[0]).isA<TestHealthService.HealthWarning<Double>>().get {
-            expectThat(value).isEqualTo(0.25)
+            expectThat(value).isEqualTo(0.375)
         }
     }
 
@@ -107,10 +107,10 @@ class TestHealthServiceTest(
         )
 
         fakeTestCaseExecution(time = 0.1, build = build)
+        fakeTestCaseExecution(time = 0.2, build = build)
         fakeTestCaseExecution(time = 0.3, build = build)
-        fakeTestCaseExecution(time = 0.4, build = build)
 
-        val warnings = testHealthService.investigate(fakeTestCaseExecution(time = 0.2, build = build))
+        val warnings = testHealthService.investigate(fakeTestCaseExecution(time = 0.4, build = build))
 
         expectThat(warnings).isEmpty()
     }
