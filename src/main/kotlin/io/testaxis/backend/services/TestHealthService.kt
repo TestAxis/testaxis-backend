@@ -9,6 +9,7 @@ class TestHealthService {
     companion object {
         const val RECENT_BUILDS_AMOUNT = 50
         const val FAILS_OFTEN_THRESHOLD = 0.10
+        const val SLOWER_THAN_AVERAGE_FACTOR = 2
     }
 
     data class HealthWarning<T>(val type: HealthWarningType, val value: T)
@@ -24,7 +25,7 @@ class TestHealthService {
         }
 
         testCaseExecution.build.averageTestExecutionTime().let { averageTime ->
-            if (testCaseExecution.time > averageTime) {
+            if (testCaseExecution.time > SLOWER_THAN_AVERAGE_FACTOR * averageTime) {
                 warnings.add(HealthWarning(HealthWarningType.SLOWER_THAN_AVERAGE, averageTime))
             }
         }
