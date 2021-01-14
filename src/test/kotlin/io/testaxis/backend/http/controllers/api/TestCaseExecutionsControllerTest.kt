@@ -63,11 +63,22 @@ class TestCaseExecutionsControllerTest(
                     testSuiteName = "io.testaxis.backend.http.controllers.ReportsControllerTest",
                     name = "A user can upload multiple reports with build information that is persisted()",
                     className = "io.testaxis.backend.http.controllers.ReportsControllerTest",
-                    time = 0.086,
+                    time = 0.300,
                     passed = false,
                     failureMessage = "An error occurred",
                     failureType = "org.opentest4j.AssertionFailedError",
                     failureContent = "The stacktrace of the failure",
+                ),
+                TestCaseExecution(
+                    build = build,
+                    testSuiteName = "io.testaxis.backend.http.controllers.ReportsControllerTest",
+                    name = "A third test to skew the average()",
+                    className = "io.testaxis.backend.http.controllers.ReportsControllerTest",
+                    time = 0.086,
+                    passed = true,
+                    failureMessage = null,
+                    failureType = null,
+                    failureContent = null,
                 )
             )
         ).toList()
@@ -206,7 +217,7 @@ class TestCaseExecutionsControllerTest(
             status { isOk }
 
             jsonPath("$[0].type") { value("slower_than_average") }
-            jsonPath("$[0].value") { value(0.0645) }
+            jsonPath("$[0].value") { value(0.143) }
         }
     }
 
