@@ -718,7 +718,7 @@ for _path in $search_in; do
   say "    ${g}+${x} $_path"
 done
 
-patterns="find $search_in -name *.xml"
+patterns="find $search_in -name '*.xml'"
 files=$(eval "$patterns" || echo '')
 
 num_of_files=$(echo "$files" | wc -l | tr -d ' ')
@@ -781,7 +781,7 @@ for _path in $search_coverage_in; do
   say "    ${g}+${x} $_path"
 done
 
-patterns="find $search_coverage_in -name *.xml"
+patterns="find $search_coverage_in -name '*.xml'"
 files=$(eval "$patterns" || echo '')
 
 num_of_files=$(echo "$files" | wc -l | tr -d ' ')
