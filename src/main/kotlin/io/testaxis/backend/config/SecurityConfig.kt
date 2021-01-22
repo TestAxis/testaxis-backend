@@ -81,6 +81,7 @@ class SecurityConfig(
                 authorize("/**/*.html", permitAll)
                 authorize("/**/*.css", permitAll)
                 authorize("/**/*.js", permitAll)
+                authorize("/**/*.bash", permitAll)
 
                 authorize("/api/v1/auth/**", permitAll)
                 authorize("/auth/**", permitAll)
