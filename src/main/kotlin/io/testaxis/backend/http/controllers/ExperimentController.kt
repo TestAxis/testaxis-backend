@@ -3,7 +3,6 @@ package io.testaxis.backend.http.controllers
 import io.testaxis.backend.events.BuildWasCreatedEvent
 import io.testaxis.backend.http.MustExist
 import io.testaxis.backend.models.Build
-import io.testaxis.backend.models.Project
 import io.testaxis.backend.repositories.BuildRepository
 import io.testaxis.backend.repositories.ProjectRepository
 import org.springframework.context.ApplicationEventPublisher
@@ -13,7 +12,11 @@ import org.springframework.web.bind.annotation.RestController
 import java.util.Date
 
 @RestController
-class ExperimentController(val projectRepository: ProjectRepository, val buildRepository: BuildRepository, val applicationEventPublisher: ApplicationEventPublisher) {
+class ExperimentController(
+    val projectRepository: ProjectRepository,
+    val buildRepository: BuildRepository,
+    val applicationEventPublisher: ApplicationEventPublisher
+) {
     /**
      * Hides all builds that are not on the main branch of the JPacman project.
      */
