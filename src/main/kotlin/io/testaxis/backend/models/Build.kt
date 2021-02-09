@@ -14,6 +14,7 @@ import javax.persistence.OneToMany
 @Entity
 class Build(
     @ManyToOne @JoinColumn(name = "project_id", nullable = false) var project: Project,
+    var visible: Boolean = true,
     var status: BuildStatus = BuildStatus.UNKNOWN,
     var branch: String,
     var commit: String,

@@ -20,7 +20,7 @@ class BuildsController(val userRepository: UserRepository, val transformer: Buil
     @GetMapping
     fun index(@CurrentUser userPrincipal: UserPrincipal, @PathVariable @MustExist project: Project) =
         transformer.transform(
-            userPrincipal.user(userRepository).projects.find { it == project }?.builds
+            userPrincipal.user(userRepository).projects.find { it == project }?.builds?.filter { it.visible }
                 ?: throw ResourceNotFoundException(),
             transformer::summary
         )
