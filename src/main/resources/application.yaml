@@ -28,7 +28,7 @@ spring:
 app:
   auth:
     tokenSecret: u0fNVcI5VfhURTascNxULCBBcw4ac8+8pdKQPEvkkmOqbyKj05PRy+cqMnqGDdHwanBd1/+jk4qBBuZ3F+cGUQ== # For development, production should override
-    tokenExpirationMsec: 864000000
+    tokenExpirationMsec: 8640000000
   oauth2:
     authorizedRedirectUris:
       - http://localhost:4000/auth/token
