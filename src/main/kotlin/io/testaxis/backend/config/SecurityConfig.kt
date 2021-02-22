@@ -87,6 +87,8 @@ class SecurityConfig(
                 authorize("/auth/**", permitAll)
                 authorize("/oauth2/**", permitAll)
 
+                authorize("/experiment/**", permitAll)
+
                 authorize(anyRequest, authenticated)
             }
             oauth2Login {
