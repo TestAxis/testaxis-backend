@@ -88,6 +88,7 @@ class SecurityConfig(
                 authorize("/oauth2/**", permitAll)
 
                 authorize("/experiment/**", permitAll)
+                authorize("/defense/**", permitAll)
 
                 authorize(anyRequest, authenticated)
             }

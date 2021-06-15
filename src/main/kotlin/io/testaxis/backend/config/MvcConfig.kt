@@ -9,5 +9,7 @@ class MvcConfig : WebMvcConfigurer {
     override fun addViewControllers(registry: ViewControllerRegistry) {
         registry.addViewController("/experiment").setViewName("redirect:/experiment/")
         registry.addViewController("/experiment/").setViewName("forward:/experiment/index.html")
+        registry.addViewController("/defense").setViewName("redirect:/defense/")
+        registry.addViewController("/defense/").setViewName("forward:/defense/index.html")
     }
 }
