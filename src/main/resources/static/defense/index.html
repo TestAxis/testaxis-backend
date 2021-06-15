@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TestAxis - Experiment</title>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width">
+    <style>
+      .video-container {
+          position: relative;
+          width: 100%;
+          height: 0;
+          padding-bottom: 56.25%;
+      }
+      .video {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+      }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 antialiased">
+
+  <header class="bg-white w-full py-4">
+    <div class="container px-4 mx-auto flex justify-center">
+      <svg class="md:w-2/3" viewBox="0 0 791 113" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#fff" d="M0 0h791v113H0z"/>
+        <path fill="#C4C4C4" d="M0 0h324v113H0z"/>
+        <path fill="url(#paint0_linear)" d="M0 0h324v113H0z"/>
+        <path d="M62.3 38.9H50.5L43.7 87H31.4l6.7-48.1H26l1.4-10h36.3l-1.5 10zm19.5 21.6c.6-4.3.4-7.3-.4-9-.9-1.6-2.1-2.4-3.7-2.4s-3.2.9-4.8 2.6c-1.5 1.6-2.6 4.5-3.2 8.8h12zM76 79.1c3.8 0 7.5-1.1 11.3-3.2l1.3 7.9a26 26 0 01-10.3 3.7c-1.8.4-3.8.7-6.1.7s-4.6-.5-6.8-1.3c-2.1-.9-3.9-2.2-5.3-4-3.1-4-4.1-9.9-3-17.3 1-8 3.7-14.3 8-18.8 3.8-4 8.4-6.1 13.7-6.1 8 0 12.8 3.8 14.2 11.5a31.4 31.4 0 01-1.5 15.7H68.7c-.6 4-.2 6.8 1.3 8.6a7.9 7.9 0 006.1 2.6zm20.3-2.5l1.4.7 2.5 1c2.3.8 4.3 1.1 6 1.1a8 8 0 003.8-.7c1-.6 1.6-1.6 1.8-3 .3-1.4 0-2.6-.6-3.5a41 41 0 00-6.1-5.8 22 22 0 01-3.5-3.5 12 12 0 01-2.9-9.8 13 13 0 015.2-9c3-2.3 7-3.4 11.9-3.4 3.8 0 7.5.6 11.1 1.8l-1.8 8.7c-.7-.1-1.9-.4-3.6-1-1.6-.4-3.3-.7-5.2-.7-3.6 0-5.6 1.2-6 3.6a4 4 0 00.7 3 29 29 0 002.8 2.7l3.8 2.9c1.3.9 2.6 2 3.7 3.2a11 11 0 013 9.7c-.4 3.7-2 7-5 9.6-3 2.6-7.2 4-12.5 4a23.5 23.5 0 01-13.7-3.6l3.2-8zm60-35l-1.1 8.8h-9.9l-3 21.8c-.4 2-.4 3.4 0 4.3.3 1 1.2 1.4 2.5 1.4 1.5 0 2.7-.2 3.7-.5l2-.8v8.5c-.3 0-.8.3-1.4.6l-2.3 1c-2.2 1-4.6 1.5-7.2 1.5-4.1 0-6.9-1.1-8.3-3.2-1.5-2.3-1.9-6-1.2-11.2l3.5-23.4h-4.9l1.2-8.7h4.8l1.6-10.9 12.1-2-2 12.9h9.8zm32.1 29H170L165 87h-8.5l18.5-60.2h8.1L201.7 87h-8.4l-4.8-16.3zm-2.1-7.2l-7.2-24.5-7.2 24.5h14.4zm33 .2L206 40h10l9 18.8 8.4-18.8h10l-13.2 22.8L243.7 87h-10l-9-18.6-9 18.6h-10l13.8-23.4zm30.7-43.8h8.3v9.5h-8.3v-9.5zm0 20.2h8.3v47h-8.3V40zm31.5 48c-5.5 0-10.3-1.3-14.3-3.9l1-8.4c4.1 3.2 8.4 4.8 12.7 4.8 2.3 0 4.1-.5 5.4-1.5 1.3-1 2-2.3 2-4.2 0-1.4-.3-2.6-1-3.4a8.7 8.7 0 00-3-2.6c-1.3-.9-3.5-2-6.5-3.3-3.4-1.6-6-3.4-7.5-5.5-1.6-2-2.4-4.7-2.4-8 0-3.8 1.3-7 4-9.4 2.7-2.4 6.3-3.6 10.8-3.6 4.6 0 8.7 1 12.1 3l-1 7.8c-1.8-1.1-3.4-2-5-2.4-1.5-.6-3.3-1-5.4-1-2.2 0-4 .6-5.3 1.5-1.3 1-1.9 2.3-1.9 4 0 1.8.6 3.1 1.6 4 1.2.9 3.4 2 6.7 3.5 4.5 2.1 7.7 4.2 9.6 6.3 1.8 2 2.7 4.8 2.7 8.1 0 4.5-1.3 8-4 10.4a16 16 0 01-11.3 3.8z" fill="#fff"/><path d="M359.3 43.5h-11.1v-5.3h28.1v5.3h-11.1V83h-6V43.5zm23-5.3h5.8v18.5h20.6V38.2h5.9V83h-5.9V62.4h-20.6V83h-5.8V38.2zm41.3 0h24v5.3h-18.1V57h14.3v5.4h-14.3v15.4H448V83h-24.5V38.2zm41.8 45.7a30.4 30.4 0 01-12.2-2.5l.9-6.4c1.7 1 3.6 2 5.7 2.6 2 .7 4.1 1 6.2 1 2.6 0 4.7-.5 6.2-1.6a5.6 5.6 0 002.2-4.8c0-1.5-.3-2.8-1-3.9-.8-1-1.8-2-3-2.8a43 43 0 00-5.6-2.9c-2.9-1.2-5.1-2.4-6.8-3.5-1.6-1-2.9-2.4-3.9-4a11 11 0 01-1.4-5.8c0-2.4.6-4.5 1.8-6.3 1.3-1.8 3-3.2 5.2-4.2 2.3-1 4.8-1.5 7.7-1.5a25.8 25.8 0 0111.1 2.4l-.6 6a21 21 0 00-10.8-3c-2.5 0-4.5.4-5.9 1.5-1.4 1-2 2.6-2 4.7a6 6 0 001 3.6c.8 1 1.8 1.8 3.1 2.6l6 3c4 1.7 7 3.7 8.8 5.8 1.9 2 2.8 4.6 2.8 7.7a11 11 0 01-4.2 9 17.9 17.9 0 01-11.3 3.3zm22.5-45.7h5.8V83H488V38.2zm26 45.7a30.4 30.4 0 01-12-2.5l.8-6.4c1.7 1 3.6 2 5.7 2.6 2 .7 4.1 1 6.2 1 2.6 0 4.7-.5 6.2-1.6a5.6 5.6 0 002.2-4.8c0-1.5-.4-2.8-1-3.9-.8-1-1.8-2-3-2.8-1.4-.8-3.3-1.8-5.7-2.9-2.8-1.2-5-2.4-6.7-3.5-1.6-1-2.9-2.4-3.9-4a11 11 0 01-1.5-5.8c0-2.4.7-4.5 2-6.3 1.1-1.8 2.9-3.2 5-4.2 2.4-1 5-1.5 7.8-1.5a25.8 25.8 0 0111.1 2.4l-.6 6a21 21 0 00-10.9-3c-2.4 0-4.4.4-5.8 1.5-1.4 1-2 2.6-2 4.7a6 6 0 001 3.6c.8 1 1.8 1.8 3.1 2.6l6 3c4 1.7 7 3.7 8.8 5.8 1.9 2 2.8 4.6 2.8 7.7a11 11 0 01-4.2 9A17.9 17.9 0 01514 84zM549 38.2h14.4A18 18 0 01580 48.6c1.6 3.4 2.4 7.4 2.4 12s-.8 8.6-2.4 12A18 18 0 01563.4 83H549V38.2zm13.3 39.5c4.4 0 7.8-1.5 10.1-4.5a20 20 0 003.6-12.6 20 20 0 00-3.6-12.6c-2.3-3-5.7-4.5-10.1-4.5h-7.5v34.2h7.5zm27-39.5h24v5.3H595V57h14.3v5.4h-14.3v15.4h18.6V83h-24.4V38.2zm31.1 0H644v5.3h-17.8v13.3H640v5.4h-13.8V83h-5.8V38.2zm29.5 0h24v5.3h-18.2V57H670v5.4h-14.3v15.4h18.6V83H650V38.2zm31.1 0h6.6L705.3 71V38.2h5.9V83h-5.5l-18.9-34.6V83H681V38.2zm49.8 45.7a30.4 30.4 0 01-12.1-2.5l.8-6.4c1.7 1 3.6 2 5.7 2.6 2.1.7 4.2 1 6.2 1 2.7 0 4.7-.5 6.2-1.6a5.6 5.6 0 002.3-4.8c0-1.5-.4-2.8-1.1-3.9-.7-1-1.7-2-3-2.8-1.4-.8-3.2-1.8-5.6-2.9-2.8-1.2-5-2.4-6.7-3.5a11 11 0 01-5.4-9.9c0-2.3.6-4.4 1.9-6.2 1.2-1.8 3-3.2 5.1-4.2 2.3-1 4.9-1.5 7.7-1.5a25.8 25.8 0 0111.2 2.4l-.7 6a21 21 0 00-10.8-3c-2.5 0-4.4.4-5.8 1.5-1.4 1-2.1 2.6-2.1 4.7a6 6 0 001 3.6c.8 1 1.9 1.8 3.2 2.6l6 3c4 1.7 7 3.7 8.8 5.8 1.8 2 2.7 4.6 2.7 7.7a11 11 0 01-4.1 9 17.9 17.9 0 01-11.4 3.3zm22-45.7h24v5.3h-18.2V57H773v5.4h-14.4v15.4h18.6V83h-24.4V38.2z" fill="#351543"/>
+        <defs>
+          <linearGradient id="paint0_linear" x1="317.7" y1="106.7" x2="0" y2="6.9" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#6F3F83"/>
+            <stop offset="1" stop-color="#BD3B5E"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+  </header>
+
+  <main class="container mx-auto py-12 md:flex flex-row-reverse justify-center">
+    <div class="md:pl-12 px-4 md:pt-8 md:w-96 text-lg">
+      <div>Thesis Defense</div>
+      <div class="font-bold text-2xl">TestAxis: Save Time Fixing Broken CI Builds Without Leaving Your IDE</div>
+      <div class="italic">Casper Boone</div>
+      <div class="pt-12 space-y-6">
+        <div>
+          <h2 class="text-2xl">
+            <strong>Schedule</strong>
+            <span class="text-gray-500 ml-1">23 June 2021</span>
+          </h2>
+        </div>
+        <div class="flex">
+          <div class="w-12">
+            10:00
+          </div>
+          <div class="text-left pl-6">
+            <div class="font-bold">Presentation</div>
+            <div class="text-base">YouTube livestream on this page</div>
+          </div>
+        </div>
+        <div class="flex">
+          <div class="w-12">
+            10:30
+          </div>
+          <div class="text-left pl-6">
+            <div class="font-bold">Q&A</div>
+            <div class="text-base mb-2">Zoom session</div>
+            <a href="https://tudelft.zoom.us/j/98151743920?pwd=WndydFY5VnZTa0wySjJrNFQzUUV1QT09" class="block">
+              <button class="bg-purple-500 text-sm md:text-base hover:bg-purple-400 shadow rounded text-white uppercase tracking-wider font-semibold px-2 py-1 md:px-4 md:py-2">
+                Join the Zoom call
+              </button>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <section class="md:flex-1 bg-white w-full mt-12 mb:mt-0 p-4 md:p-8 text-lg md:rounded-3xl shadow-xl space-y-6 leading-relaxed">
+      <div class="video-container">
+        <iframe class="video" width="560" height="315" src="https://www.youtube-nocookie.com/embed/kJRtQPoG95c" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>      
+      </div>
+      <p class="text-sm md:text-base">
+        Click the play button in the player above to start or prepare for watching.
+        The livestream starts around 10am on the 23rd of June.
+        We recommend watching in full screen by clicking the button in the bottom right of the player.
+      </p>
+    </section>
+  </main>
+
+  <section class="container mx-auto px-4 py-12 flex justify-center">
+    <div class="md:w-2/3 space-y-6">
+
+      <section class="text-xl space-y-6 leading-loose">
+        <h1 class="text-2xl pb-1 font-bold tracking-wider uppercase" id="experiment">
+          What is TestAxis?
+        </h1>
+        <p>
+          A CI build fails, what do you do? &mdash; To identify the issue causing the failure, you'd probably open the build log only to find <strong>hundreds to thousands of lines of logs</strong> you need to scroll through to get to the cause.
+          The issue is likely a failing test since that is the <strong>most important reason</strong> why builds fail.
+          However, even when you finally found which test is failing, the build log <strong>only shows you the name and error message of the test</strong>.
+          This is not always helpful: a message like “Failed asserting that 24 is equal to 15” will not bring you any closer to fixing your failing system test where the issue can come from anywhere in the codebase.
+        </p>
+        <p>
+          <strong>TestAxis</strong> improves the experience of fixing failing CI builds: it gives you an <strong>overview of the failing tests</strong> without having to look at logs and it puts tests <strong>in the context of the code change</strong>.
+          The TestAxis IDE plugin <strong>alerts</strong> you of a build failure and gives you the ability to inspect the results, so you never have to leave your IDE when a build fails.
+          For each failing test, it shows you <strong>the stack trace</strong> (similar to locally running your tests), the <strong>test code</strong>, and the code under test.
+          The <strong>code under test</strong> feature shows you the covered production code which was modified in the commits leading up to the build failure: so, a likely source of the issue!
+          Once you have found the issue, you can <strong>apply the fix</strong> directly from within the IDE plugin.
+        </p>
+        <p>
+          <a href="http://resolver.tudelft.nl/uuid:f8375d5f-3bbd-4559-863b-6951e9d6bab0" class="border-b border-dashed border-gray-800 text-black">
+            Are you curious to read more about TestAxis? Check out the full thesis here!
+          </a>
+        </p>
+      </section>
+
+      <a href="screenshot_1.png" class="block">
+        <img src="screenshot_1.png" class="max-w-full" />
+      </a>
+
+      <section class="p-8 space-y-6 md:space-y-0 md:space-x-6 md:flex items-center">
+        <div class="rounded-full overflow-hidden border-4 border-white shadow-lg w-64 h-64">
+          <img src="casper.jpg" alt="Casper" />
+        </div>
+
+        <div class="flex-1">
+          <h1 class="text-3xl pb-2 font-semibold">
+            The Project
+          </h1>
+          <p class="mb-2">
+            Hi! I'm Casper Boone and I'm in the final stage of my master Computer Science at Delft University of Technology in the Netherlands.
+            The research project above is the topic of my master's thesis which I've been working on since September 2020.
+            I worked on TestAxis under the supervision of <a href="https://azaidman.github.io/" class="text-purple-800 hover:text-purple-400 hover:underline">prof. dr. Andy Zaidman</a> 
+            and <a href="https://carolin-brandt.de/" class="text-purple-800 hover:text-purple-400 hover:underline">Carolin Brandt</a>.
+          </p>
+          <p>
+            The goal of TestAxis is to give developers insights into failing tests after CI builds and to provide them with information that helps to resolve the issues causing the failing tests faster.
+            The information presented to the user is based on (historical) test executions with the goal to shift the axis from builds to tests.
+          </p>
+          <p>
+        </div>
+      </section>
+
+    </div>
+  </section>
+
+  <footer class="pb-12">
+    <div class="container mx-auto flex justify-center">
+      <a href="https://tudelft.nl/">
+        <img src="tudelft_logo.png" alt="TU Delft" class="h-24" />
+      </a>
+    </div>
+  </footer>
+</body>
+</html>
